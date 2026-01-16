@@ -1,0 +1,21 @@
+{
+  "name": "tao-docs",
+  "version": "1.0.0",
+  "description": "大鲸鱼博客 - 前端技术学习文档",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0"
+  },
+  "keywords": [
+    "vitepress",
+    "documentation",
+    "blog"
+  ],
+  "author": "大鲸鱼",
+  "license": "MIT"
+}
