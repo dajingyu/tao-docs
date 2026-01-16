@@ -1,0 +1,1 @@
+{"version":3,"file":"case-linebreak.d.ts","sourceRoot":"","sources":["../../src/rules/case-linebreak.ts"],"names":[],"mappings":"AAAA;;;;;GAKG;AAIH,OAAO,EAAE,OAAO,EAAgB,MAAM,oBAAoB,CAAA;AAE1D,OAAO,EAAE,OAAO,EAA4B,MAAM,WAAW,CAAA;AAE7D,QAAA,MAAM,eAAe,YAAa,OAAO,KAAG,OAU3C,CAAA;AAED,eAAO,MAAM,aAAa,EAAE,OAAY,CAAA;AAExC,eAAe,eAAe,CAAA"}

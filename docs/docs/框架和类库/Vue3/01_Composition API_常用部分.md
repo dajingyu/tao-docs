@@ -1,0 +1,500 @@
+# 1. Composition API(常用部分)
+
+文档: 
+
+​	https://composition-api.vuejs.org/zh/api.html
+
+## 1) setup
+
+- 新的option, 所有的组合API函数都在此使用, 只在初始化时执行一次
+- 函数如果返回对象, 对象中的属性或方法, 模板中可以直接使用
+
+## 2) ref
+
+- 作用: 定义一个数据的响应式
+- 语法: const xxx = ref(initValue): 
+  - 创建一个包含响应式数据的引用(reference)对象
+  - js中操作数据: xxx.value
+  - 模板中操作数据: 不需要.value
+-  一般用来定义一个基本类型的响应式数据
+
+
+
+```vue
+<template>
+  <h2>{{count}}</h2>
+  <hr>
+  <button @click="update">更新</button>
+</template>
+
+<script>
+import {
+  ref
+} from 'vue'
+export default {
+
+  /* 在Vue3中依然可以使用data和methods配置, 但建议使用其新语法实现 */
+  // data () {
+  //   return {
+  //     count: 0
+  //   }
+  // },
+  // methods: {
+  //   update () {
+  //     this.count++
+  //   }
+  // }
+
+  /* 使用vue3的composition API */
+  setup () {
+
+    // 定义响应式数据 ref对象
+    const count = ref(1)
+    console.log(count)
+
+    // 更新响应式数据的函数
+    function update () {
+      // alert('update')
+      count.value = count.value + 1
+    }
+
+    return {
+      count,
+      update
+    }
+  }
+}
+</script>
+```
+
+## 3) reactive
+
+- 作用: 定义多个数据的响应式
+- const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
+- 响应式转换是“深层的”：会影响对象内部所有嵌套的属性
+- 内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+
+```vue
+<template>
+  <h2>name: {{state.name}}</h2>
+  <h2>age: {{state.age}}</h2>
+  <h2>wife: {{state.wife}}</h2>
+  <hr>
+  <button @click="update">更新</button>
+</template>
+
+<script>
+/* 
+reactive: 
+    作用: 定义多个数据的响应式
+    const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
+    响应式转换是“深层的”：会影响对象内部所有嵌套的属性
+    内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+*/
+import {
+  reactive,
+} from 'vue'
+export default {
+  setup () {
+    /* 
+    定义响应式数据对象
+    */
+    const state = reactive({
+      name: 'tom',
+      age: 25,
+      wife: {
+        name: 'marry',
+        age: 22
+      },
+    })
+    console.log(state, state.wife)
+
+    const update = () => {
+      state.name += '--'
+      state.age += 1
+      state.wife.name += '++'
+      state.wife.age += 2
+    }
+
+    return {
+      state,
+      update,
+    }
+  }
+}
+</script>
+```
+
+
+
+## 4) 比较Vue2与Vue3的响应式(重要)
+
+## vue2的响应式
+
+- 核心: 
+  - 对象: 通过defineProperty对对象的已有属性值的读取和修改进行劫持(监视/拦截)
+  - 数组: 通过重写数组更新数组一系列更新元素的方法来实现元素修改的劫持
+
+```js
+Object.defineProperty(data, 'count', {
+    get () {}, 
+    set () {}
+})
+```
+
+- 问题
+  - 对象直接新添加的属性或删除已有属性, 界面不会自动更新
+  - 直接通过下标替换元素或更新length, 界面不会自动更新   arr[1] = {}
+
+## Vue3的响应式
+
+- 核心: 
+  - 通过Proxy(代理):  拦截对data任意属性的任意(13种)操作, 包括属性值的读写, 属性的添加, 属性的删除等...
+  - 通过 Reflect(反射):  动态对被代理对象的相应属性进行特定的操作
+  - 文档:
+    - https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+    - https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Reflect
+
+```js
+new Proxy(data, {
+	// 拦截读取属性值
+    get (target, prop) {
+    	return Reflect.get(target, prop)
+    },
+    // 拦截设置属性值或添加新属性
+    set (target, prop, value) {
+    	return Reflect.set(target, prop, value)
+    },
+    // 拦截删除属性
+    deleteProperty (target, prop) {
+    	return Reflect.deleteProperty(target, prop)
+    }
+})
+
+proxy.name = 'tom'   
+```
+
+
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy 与 Reflect</title>
+</head>
+<body>
+  <script>
+    
+    const user = {
+      name: "John",
+      age: 12
+    };
+
+    /* 
+    proxyUser是代理对象, user是被代理对象
+    后面所有的操作都是通过代理对象来操作被代理对象内部属性
+    */
+    const proxyUser = new Proxy(user, {
+
+      get(target, prop) {
+        console.log('劫持get()', prop)
+        return Reflect.get(target, prop)
+      },
+
+      set(target, prop, val) {
+        console.log('劫持set()', prop, val)
+        return Reflect.set(target, prop, val); // (2)
+      },
+
+      deleteProperty (target, prop) {
+        console.log('劫持delete属性', prop)
+        return Reflect.deleteProperty(target, prop)
+      }
+    });
+    // 读取属性值
+    console.log(proxyUser===user)
+    console.log(proxyUser.name, proxyUser.age)
+    // 设置属性值
+    proxyUser.name = 'bob'
+    proxyUser.age = 13
+    console.log(user)
+    // 添加属性
+    proxyUser.sex = '男'
+    console.log(user)
+    // 删除属性
+    delete proxyUser.sex
+    console.log(user)
+  </script>
+</body>
+</html>
+```
+
+
+
+## 5) setup细节
+
+- setup执行的时机
+  - 在beforeCreate之前执行(一次), 此时组件对象还没有创建
+  - this是undefined, 不能通过this来访问data/computed/methods / props
+  - 其实所有的composition API相关回调函数中也都不可以
+
+- setup的返回值
+  - 一般都返回一个对象: 为模板提供数据, 也就是模板中可以直接使用此对象中的所有属性/方法
+  - 返回对象中的属性会与data函数返回对象的属性合并成为组件对象的属性
+  - 返回对象中的方法会与methods中的方法合并成功组件对象的方法
+  - 如果有重名, setup优先
+  -  注意: 
+    -  一般不要混合使用: methods中可以访问setup提供的属性和方法, 但在setup方法中不能访问data和methods
+    - setup不能是一个async函数: 因为返回值不再是return的对象, 而是promise, 模板看不到return对象中的属性数据
+
+- setup的参数
+  - setup(props, context) / setup(props, {attrs, slots, emit})
+  - props: 包含props配置声明且传入了的所有属性的对象
+  - attrs: 包含没有在props配置中声明的属性的对象, 相当于 this.$attrs
+  - slots: 包含所有传入的插槽内容的对象, 相当于 this.$slots
+  - emit: 用来分发自定义事件的函数, 相当于 this.$emit
+
+```vue
+<template>
+  <h2>App</h2>
+  <p>msg: {{msg}}</p>
+  <button @click="fn('--')">更新</button>
+
+  <child :msg="msg" msg2="cba" @fn="fn"/>
+</template>
+
+<script lang="ts">
+import {
+  reactive,
+  ref,
+} from 'vue'
+import child from './child.vue'
+
+export default {
+
+  components: {
+    child
+  },
+
+  setup () {
+    const msg = ref('abc')
+
+    function fn (content: string) {
+      msg.value += content
+    }
+    return {
+      msg,
+      fn
+    }
+  }
+}
+</script>
+```
+
+```vue
+<template>
+  <div>
+    <h3>{{n}}</h3>
+    <h3>{{m}}</h3>
+
+    <h3>msg: {{msg}}</h3>
+    <h3>msg2: {{$attrs.msg2}}</h3>
+
+    <slot name="xxx"></slot>
+
+    <button @click="update">更新</button>
+  </div>
+</template>
+
+<script lang="ts">
+
+import {
+  ref,
+  defineComponent
+} from 'vue'
+
+export default defineComponent({
+  name: 'child',
+
+  props: ['msg'],
+
+  emits: ['fn'], // 可选的, 声明了更利于程序员阅读, 且可以对分发的事件数据进行校验
+
+  data () {
+    console.log('data', this)
+    return {
+      // n: 1
+    }
+  },
+
+  beforeCreate () {
+    console.log('beforeCreate', this)
+  },
+
+  methods: {
+    // update () {
+    //   this.n++
+    //   this.m++
+    // }
+  },
+
+  // setup (props, context) {
+  setup (props, {attrs, emit, slots}) {
+
+    console.log('setup', this)
+    console.log(props.msg, attrs.msg2, slots, emit)
+
+    const m = ref(2)
+    const n = ref(3)
+
+    function update () {
+      // console.log('--', this)
+      // this.n += 2 
+      // this.m += 2
+
+      m.value += 2
+      n.value += 2
+
+      // 分发自定义事件
+      emit('fn', '++')
+    }
+
+    return {
+      m,
+      n,
+      update,
+    }
+  },
+})
+</script>
+```
+
+---
+
+## 6) setup 语法糖最佳实践
+
+### 6.1 使用 `<script setup>`
+
+`<script setup>` 是 Vue 3.2+ 引入的语法糖，简化了 Composition API 的使用。
+
+**优势**：
+- 更简洁的语法
+- 自动暴露变量和函数
+- 更好的 TypeScript 支持
+- 更好的性能（编译时优化）
+
+**基本用法**：
+
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+// 直接定义，自动暴露给模板
+const count = ref(0)
+const doubleCount = computed(() => count.value * 2)
+
+function increment() {
+  count.value++
+}
+</script>
+
+<template>
+  <div>
+    <p>Count: {{ count }}</p>
+    <p>Double: {{ doubleCount }}</p>
+    <button @click="increment">+1</button>
+  </div>
+</template>
+```
+
+### 6.2 Props 和 Emits
+
+```vue
+<script setup lang="ts">
+// 定义 Props
+interface Props {
+  title: string
+  count?: number
+}
+
+const props = defineProps<Props>()
+
+// 定义 Emits
+const emit = defineEmits<{
+  change: [value: string]
+  update: [id: number]
+}>()
+
+function handleClick() {
+  emit('change', 'new value')
+}
+</script>
+```
+
+### 6.3 使用 defineExpose 暴露方法
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const inputRef = ref<HTMLInputElement>()
+
+function focus() {
+  inputRef.value?.focus()
+}
+
+// 暴露方法给父组件
+defineExpose({
+  focus
+})
+</script>
+
+<template>
+  <input ref="inputRef" />
+</template>
+```
+
+### 6.4 使用 defineOptions（Vue 3.3+）
+
+```vue
+<script setup lang="ts">
+// 定义组件选项
+defineOptions({
+  name: 'MyComponent',
+  inheritAttrs: false
+})
+</script>
+```
+
+### 6.5 最佳实践总结
+
+1. **优先使用 `<script setup>`**：更简洁、性能更好
+2. **合理使用 TypeScript**：为 Props 和 Emits 提供类型定义
+3. **使用 Composables**：将可复用逻辑提取为 Composables
+4. **避免过度使用 ref**：简单数据可以直接使用普通变量
+5. **合理使用 computed**：对于派生状态，使用 computed 而不是 watch
+6. **使用 defineExpose**：需要暴露方法给父组件时使用
+7. **使用 defineOptions**：定义组件选项（Vue 3.3+）
+
+### 6.6 常见错误避免
+
+```vue
+<script setup lang="ts">
+// ❌ 错误：不能直接修改 props
+const props = defineProps<{ count: number }>()
+props.count++ // 错误！
+
+// ✅ 正确：使用 emit 通知父组件
+const emit = defineEmits<{ 'update:count': [value: number] }>()
+emit('update:count', props.count + 1)
+
+// ❌ 错误：不能使用 this
+const message = this.someValue // 错误！
+
+// ✅ 正确：直接使用变量
+const message = ref('hello')
+</script>
+```
+```

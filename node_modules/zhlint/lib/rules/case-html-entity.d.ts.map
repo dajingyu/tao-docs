@@ -1,0 +1,1 @@
+{"version":3,"file":"case-html-entity.d.ts","sourceRoot":"","sources":["../../src/rules/case-html-entity.ts"],"names":[],"mappings":"AAAA;;;;;;;GAOG;AAEH,OAAO,EAEL,OAAO,EAGR,MAAM,oBAAoB,CAAA;AAE3B,OAAO,EAIL,OAAO,EAER,MAAM,WAAW,CAAA;AAElB,QAAA,MAAM,eAAe,YAAa,OAAO,KAAG,OAsD3C,CAAA;AAED,eAAO,MAAM,aAAa,EAAE,OAAY,CAAA;AAExC,eAAe,eAAe,CAAA"}
