@@ -9,7 +9,8 @@
     "preview": "vitepress preview docs"
   },
   "devDependencies": {
-    "vitepress": "^1.0.0"
+    "@vue/theme": "^2.3.0",
+    "vitepress": "^1.6.4"
   },
   "keywords": [
     "vitepress",
