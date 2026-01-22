@@ -1,742 +1,655 @@
-<!--
- * @Date: 2025-02-07 17:09:39
- * @LastEditors: 我家有条大鲸鱼
- * @LastEditTime: 2025-02-28 18:43:32
- * @Description: 文件信息
--->
-# CSS核心知识体系
+# CSS 基础核心知识
 
-## 第一章 CSS3新特性全景
+## 一、选择器系统
 
-### 1.1 布局革命
+### 1.1 基础选择器
 
-#### Flexbox 弹性布局
+| 选择器 | 语法 | 示例 | 说明 |
+|--------|------|------|------|
+| **元素选择器** | `element` | `div { }` | 选择所有该元素 |
+| **类选择器** | `.class` | `.container { }` | 选择class属性 |
+| **ID选择器** | `#id` | `#header { }` | 选择id属性 |
+| **属性选择器** | `[attr]` | `[type] { }` | 选择有该属性的元素 |
+| **通配符** | `*` | `* { }` | 选择所有元素 |
 
-Flexbox（Flexible Box Layout）是一种一维布局模型，用于在容器内灵活地排列和对齐项目。它特别适合处理组件内部元素的排列、对齐和空间分配。
+### 1.2 组合选择器
 
-**核心属性体系：**
+| 选择器 | 语法 | 示例 | 说明 |
+|--------|------|------|------|
+| **后代选择器** | `A B` | `div p { }` | 选择div内的所有p |
+| **子选择器** | `A > B` | `div > p { }` | 选择div的直接子元素p |
+| **相邻兄弟** | `A + B` | `h2 + p { }` | 选择紧跟在h2后面的p |
+| **通用兄弟** | `A ~ B` | `h2 ~ p { }` | 选择h2后面的所有p |
+| **并集选择器** | `A, B` | `div, p { }` | 选择div或p |
+
+### 1.3 属性选择器
+
 ```css
-.container {
-  display: flex;
-  flex-direction: row | row-reverse | column | column-reverse;
-  flex-wrap: nowrap | wrap | wrap-reverse;
-  justify-content: flex-start | flex-end | center | space-between | space-around | space-evenly;
-  align-items: stretch | flex-start | flex-end | center | baseline;
-  align-content: flex-start | flex-end | center | space-between | space-around | stretch;
-}
+/* 精确匹配 */
+input[type="text"] { }
 
-.item {
-  order: <integer>;
-  flex-grow: <number>; /* 默认0 */
-  flex-shrink: <number>; /* 默认1 */
-  flex-basis: <length> | auto; /* 默认auto */
-  align-self: auto | flex-start | flex-end | center | baseline | stretch;
-}
+/* 包含指定值 */
+a[href*="example"] { }
+
+/* 以指定值开头 */
+a[href^="https"] { }
+
+/* 以指定值结尾 */
+a[href$=".pdf"] { }
+
+/* 空格分隔的值 */
+div[class~="active"] { }
+
+/* 连字符分隔的值 */
+div[lang|="zh"] { }
 ```
 
-**典型布局案例：**
-1. 导航栏布局
-```css
-/* 容器设置 */
-.nav {
-  display: flex; /* 启用弹性布局 */
-  justify-content: space-between; /* 主轴空间分布 */
-  align-items: center; /* 交叉轴居中对齐 */
-}
+### 1.4 伪类选择器
 
-/* 子项设置 */
-.logo { 
-  order: 1; /* 显示顺序调整 */
-}
-.menu { 
-  order: 2; 
-  flex: 1; /* 简写属性：flex-grow:1 | flex-shrink:1 | flex-basis:0% */
-}
-.user { 
-  order: 3; 
-}
+#### 结构伪类
+```css
+/* 第一个子元素 */
+li:first-child { }
+
+/* 最后一个子元素 */
+li:last-child { }
+
+/* 第n个子元素 */
+li:nth-child(2) { }
+li:nth-child(2n) { }      /* 偶数 */
+li:nth-child(2n+1) { }    /* 奇数 */
+li:nth-child(-n+3) { }    /* 前3个 */
+
+/* 同类型第n个 */
+p:nth-of-type(2) { }
+
+/* 唯一子元素 */
+p:only-child { }
 ```
 
-2. 圣杯布局（三栏自适应）
+#### 状态伪类
 ```css
-/* 外层容器 */
-.container {
-  display: flex;
-  min-height: 100vh; /* 视口高度填充 */
-  flex-direction: column; /* 垂直方向排列 */
-}
+/* 链接状态 */
+a:link { }          /* 未访问 */
+a:visited { }       /* 已访问 */
+a:hover { }         /* 悬停 */
+a:active { }        /* 激活 */
 
-/* 主内容区 */
-.main {
-  flex: 1; /* 占据剩余空间 */
-  display: flex; /* 嵌套弹性布局 */
-}
-
-.content { 
-  flex: 1; /* 主内容区自适应 */
-}
-.aside { 
-  width: 200px; /* 侧边栏固定宽度 */
-}
+/* 表单状态 */
+input:focus { }     /* 获得焦点 */
+input:disabled { }  /* 禁用 */
+input:checked { }   /* 选中 */
+input:required { }  /* 必填 */
+input:invalid { }   /* 无效 */
+input:placeholder-shown { } /* 显示占位符 */
 ```
 
-#### Grid 网格布局
-
-Grid（CSS Grid Layout）是一种二维布局系统，能够同时处理行和列，非常适合创建复杂的网页布局。与 Flexbox 的一维布局不同，Grid 提供了更强大的布局控制能力。
-
-**核心属性体系：**
+#### 现代伪类
 ```css
-.container {
-  display: grid;
-  /* 定义列：自动适应容器，最小200px，最大1fr */
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  /* 定义行：自动行高，最小150px */
-  grid-auto-rows: minmax(150px, auto);
-  /* 网格间距：行间距和列间距 */
-  gap: 20px;
-  /* 命名区域：定义布局结构 */
-  grid-template-areas:
-    "header header"
-    "sidebar content";
-}
+/* :is() - 匹配任意一个 */
+:is(h1, h2, h3) { margin-top: 1em; }
 
-.item {
-  /* 列定位：从第1列开始，跨越2列 */
-  grid-column: 1 / span 2;
-  /* 行定位：从第2行到第4行 */
-  grid-row: 2 / 4;
-  /* 区域定位：使用命名区域 */
-  grid-area: header;
-  /* 自身对齐：水平和垂直居中 */
-  place-self: center;
-}
-```
+/* :where() - 优先级为0 */
+:where(.card, .panel) { padding: 1rem; }
 
-**注意**：`grid-template-rows: masonry` 是实验性特性，目前浏览器支持有限，不建议在生产环境使用。
-
-**典型布局案例：**
-1. 响应式卡片网格
-```css
-.gallery {
-  display: grid;
-  /* 自动填充列，最小300px，最大1fr */
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  /* 自动行高，最小200px */
-  grid-auto-rows: minmax(200px, auto);
-  gap: 1rem; /* 网格间隙 */
-}
-
-/* 首张卡片跨列显示 */
-.card:nth-child(1) {
-  grid-column: 1 / -1; /* 从第一列到最后一列 */
-}
-```
-
-2. 杂志式复杂布局
-```css
-.layout {
-  display: grid;
-  /* 列定义：侧边栏240px + 主内容区自适应 */
-  grid-template-columns: 240px 1fr;
-  /* 行定义：头部80px + 主内容区自适应 + 底部60px */
-  grid-template-rows: 80px 1fr 60px;
-  /* 区域命名 */
-  grid-template-areas:
-    "header header"
-    "sidebar main"
-    "footer footer";
-}
-
-/* 区域分配 */
-.header { grid-area: header; }
-.sidebar { grid-area: sidebar; }
-.main { grid-area: main; }
-.footer { grid-area: footer; }
-```
-
-#### 布局方案选择指南
-
-选择合适的布局方案能够提高开发效率和代码可维护性。以下是 Flexbox 和 Grid 的选择建议：
-
-| 场景特征                | 推荐方案 | 理由说明                  |
-|-------------------------|----------|-------------------------|
-| 一维布局（单行或单列）  | Flexbox  | 单项排列控制更灵活，API 更简单 |
-| 二维复杂布局            | Grid     | 行列定义更直观，支持复杂布局结构 |
-| 未知项动态布局          | Flexbox  | 内容驱动布局更合适，自动适应内容 |
-| 严格对齐需求            | Grid     | 网格线系统更精确，支持多维度对齐 |
-| 旧浏览器兼容（IE10+）   | Flexbox  | 支持度更广泛，兼容性更好 |
-| 嵌套布局                | 混合使用 | 外层用 Grid，内层用 Flexbox |
-
-**实际应用建议**：
-- 导航栏、工具栏、表单行：使用 Flexbox
-- 卡片网格、仪表盘、复杂页面布局：使用 Grid
-- 可以组合使用：Grid 作为外层布局，Flexbox 处理内部元素排列
-
-### 1.2 视觉增强
-
-#### 变形与过渡
-
-CSS Transform 和 Transition 提供了丰富的视觉效果，能够创建流畅的用户交互体验。
-
-**Transform（变形）**：
-```css
-.card:hover {
-  /* 组合变换：旋转5度并放大1.05倍 */
-  transform: rotate(5deg) scale(1.05);
-  /* 过渡效果：所有属性，0.3秒，缓动函数 */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
-
-**常用变换函数**：
-- `translate(x, y)`：平移
-- `rotate(angle)`：旋转
-- `scale(x, y)`：缩放
-- `skew(x, y)`：倾斜
-
-**应用场景**：卡片悬停效果、按钮交互、加载动画
-
-#### 动画系统
-
-CSS Animation 提供了比 Transition 更强大的动画控制能力，支持关键帧动画。
-
-```css
-/* 定义关键帧动画 */
-@keyframes slideIn {
-  from { 
-    transform: translateX(-100%); 
-    opacity: 0;
-  }
-  to { 
-    transform: translateX(0); 
-    opacity: 1;
-  }
-}
-
-.modal {
-  /* 应用动画：名称、时长、填充模式 */
-  animation: slideIn 0.5s forwards;
-}
-```
-
-**动画属性**：
-- `animation-name`：动画名称
-- `animation-duration`：动画时长
-- `animation-timing-function`：缓动函数
-- `animation-delay`：延迟时间
-- `animation-iteration-count`：重复次数
-- `animation-direction`：播放方向
-- `animation-fill-mode`：填充模式（forwards/backwards/both）
-
-**应用场景**：页面入场动画、状态提示、加载指示器、微交互效果
-
-### 1.3 响应式设计
-
-#### 媒体查询增强
-
-现代 CSS 媒体查询支持更多特性检测，能够精确适配不同设备和用户偏好。
-
-```css
-/* 检测设备是否支持悬停操作 */
-@media (hover: hover) and (min-width: 1024px) {
-  .menu { display: block; }
-}
-
-/* 暗黑模式适配 */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #1a1a1a;
-    color: #ffffff;
-  }
-}
-
-/* 减少动画偏好 */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-```
-
-**常用媒体特性**：
-- `min-width` / `max-width`：视口宽度
-- `hover`：是否支持悬停
-- `prefers-color-scheme`：颜色方案偏好（dark/light）
-- `prefers-reduced-motion`：减少动画偏好
-- `orientation`：设备方向（portrait/landscape）
-
-**应用场景**：设备适配、暗黑模式、无障碍支持、打印样式
-
-#### 视口单位
-
-视口单位（Viewport Units）基于浏览器视口尺寸，非常适合创建响应式布局。
-
-```css
-/* 基本视口单位 */
-.fullscreen {
-  width: 100vw;   /* 视口宽度 */
-  height: 100vh;  /* 视口高度 */
-}
-
-/* 动态视口单位（现代浏览器） */
-.header {
-  height: 100dvh; /* 动态视口高度，考虑移动端地址栏 */
-}
-
-/* 小视口单位 */
-.small-text {
-  font-size: 2vmin; /* 视口较小尺寸的2% */
-}
-```
-
-**视口单位说明**：
-- `vw` / `vh`：视口宽度/高度的百分比
-- `vmin` / `vmax`：视口较小/较大尺寸的百分比
-- `dvw` / `dvh`：动态视口单位（考虑浏览器 UI）
-- `svw` / `svh`：小视口单位（不考虑浏览器 UI）
-- `lvw` / `lvh`：大视口单位
-
-**应用场景**：全屏布局、字体响应式、移动端适配、弹窗居中
-
-## 第二章 核心概念解析
-### 2.1 盒子模型（Box Model）
-- **标准 vs IE模型**
-  ```css
-  /* 切换盒模型 */
-  .box { box-sizing: border-box; }
-  ```
-  - 应用场景：精确尺寸控制、第三方组件集成
-- **BFC机制**
-  - 触发条件：overflow: hidden/display: flow-root
-  - 作用：清除浮动、防止外边距合并
-
-### 2.2 选择器系统
-
-#### 组合选择器进阶
-
-CSS 提供了丰富的选择器组合方式，能够精确选择目标元素。
-
-```css
-/* 相邻兄弟选择器：紧跟在 h2 后面的 p */
-h2 + p { margin-top: 0; }
-
-/* 通用兄弟选择器：h2 后面的所有 p */
-h2 ~ p { color: #666; }
-
-/* 属性选择器：根据属性值选择 */
-input[type="text"]:invalid { 
-  border-color: red; 
-}
-
-/* 属性包含选择器 */
-a[href*="example"] { color: blue; }
-```
-
-#### 现代伪类选择器
-
-CSS3 引入了强大的新伪类选择器，大大增强了选择能力。
-
-```css
-/* :is() - 匹配任意一个选择器 */
-:is(h1, h2, h3) { 
-  margin-top: 1em; 
-}
-
-/* :where() - 与 :is() 类似，但优先级为0 */
-:where(.card, .panel) { 
-  padding: 1rem; 
-}
-
-/* :has() - 父选择器（匹配包含特定子元素的父元素） */
-.card:has(img) { 
-  border: 2px solid blue; 
-}
+/* :has() - 父选择器 */
+.card:has(img) { border: 2px solid blue; }
 
 /* :not() - 否定选择器 */
-input:not([type="submit"]) { 
-  width: 100%; 
-}
+input:not([type="submit"]) { width: 100%; }
 
-/* 结构伪类 */
-li:nth-child(2n+1) { 
-  background: #f5f5f5; 
-}
-
-/* 表单状态伪类 */
-input:placeholder-shown { 
-  border-color: #ccc; 
-}
-
-input:focus-visible { 
-  outline: 2px solid blue; 
-}
+/* :focus-visible - 键盘导航焦点 */
+button:focus-visible { outline: 2px solid blue; }
 ```
 
-**新伪类选择器说明**：
-- `:is()`：匹配列表中任意一个选择器，优先级取最高值
-- `:where()`：与 `:is()` 功能相同，但优先级始终为 0
-- `:has()`：父选择器，匹配包含特定子元素的元素（现代浏览器支持）
-- `:focus-visible`：仅在键盘导航时显示焦点样式
-
-#### 伪元素应用
-
-伪元素用于创建不在 DOM 中的虚拟元素，常用于装饰性内容。
+### 1.5 伪元素
 
 ```css
 /* 内容前插入 */
-.price::before { 
-  content: "¥"; 
+.price::before {
+  content: "¥";
 }
 
 /* 内容后插入 */
-.link::after { 
-  content: " →"; 
+.link::after {
+  content: " →";
 }
 
 /* 首行样式 */
-p::first-line { 
-  font-weight: bold; 
+p::first-line {
+  font-weight: bold;
 }
 
 /* 首字母样式 */
-p::first-letter { 
-  font-size: 2em; 
-  float: left; 
+p::first-letter {
+  font-size: 2em;
+  float: left;
+}
+
+/* 选中文本样式 */
+::selection {
+  background: yellow;
+  color: black;
 }
 ```
 
-### 2.3 层叠与继承
-- **优先级计算表**
-  | 选择器类型         | 示例            | 权重值 |
-  |--------------------|-----------------|--------|
-  | !important         | color: red!important | ∞    |
-  | 内联样式           | style="..."     | 1000   |
-  | ID选择器           | #header         | 100    |
-  | 类/属性/伪类选择器 | .active         | 10     |
-  | 元素/伪元素选择器  | div::after      | 1      |
-  
-- **继承控制**
-  ```css
-  /* 强制继承 */
-  .child { color: inherit; }
-  
-  /* 阻止继承 */
-  .parent { all: unset; }
-  ```
+**注意**：`::before` 和 `::after` 必须设置 `content` 属性才会显示。
 
-## 第三章 工程化实践
+---
 
-### 3.1 现代布局方案
+## 二、盒模型（Box Model）
 
-#### 多列布局
+### 2.1 标准盒模型
 
-CSS Multi-column Layout 可以将内容自动分成多列，类似报纸排版。
+```
+┌─────────────────────────┐
+│      margin (外边距)      │
+│  ┌───────────────────┐   │
+│  │   border (边框)    │   │
+│  │  ┌─────────────┐  │   │
+│  │  │ padding(内边距)│  │   │
+│  │  │ ┌─────────┐ │  │   │
+│  │  │ │ content │ │  │   │
+│  │  │ │ (内容)  │ │  │   │
+│  │  │ └─────────┘ │  │   │
+│  │  └─────────────┘  │   │
+│  └───────────────────┘   │
+└─────────────────────────┘
+```
+
+**元素总宽度** = `width` + `padding-left` + `padding-right` + `border-left` + `border-right` + `margin-left` + `margin-right`
+
+### 2.2 IE盒模型（border-box）
 
 ```css
-.article {
-  /* 列数：自动分成3列 */
-  column-count: 3;
-  /* 列间距 */
-  column-gap: 2em;
-  /* 列分隔线 */
-  column-rule: 1px solid #ddd;
-  /* 列宽度（与 column-count 二选一） */
-  column-width: 200px;
+.box {
+  box-sizing: border-box;
 }
 ```
 
-**应用场景**：新闻排版、文章阅读、瀑布流布局
+**元素总宽度** = `width`（包含 padding 和 border）
 
-#### 粘性定位
+### 2.3 盒模型对比
 
-`position: sticky` 结合了相对定位和固定定位的特点，元素在滚动到指定位置时"粘住"。
+| 属性 | 标准盒模型 | border-box |
+|------|-----------|------------|
+| `width` | 仅内容宽度 | 内容+padding+border |
+| 总宽度计算 | width + padding + border | width |
+| 应用场景 | 传统布局 | 现代布局（推荐） |
 
+### 2.4 外边距合并（Margin Collapse）
+
+**触发条件**：
+- 相邻块级元素的垂直外边距
+- 父子元素之间（子元素的 margin-top 与父元素的 margin-top 合并）
+- 空元素（只有 margin，没有内容）
+
+**解决方案**：
+```css
+/* 方案1：使用 padding 代替 */
+.container {
+  padding-top: 20px;
+}
+
+/* 方案2：创建 BFC */
+.parent {
+  overflow: hidden;        /* 或 display: flow-root */
+}
+
+/* 方案3：使用 Flexbox/Grid 的 gap */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;               /* gap 不会合并 */
+}
+```
+
+---
+
+## 三、定位（Position）
+
+### 3.1 定位属性值
+
+| 值 | 说明 | 特点 | 脱离文档流 |
+|---|------|------|-----------|
+| `static` | 默认值 | 正常文档流 | 否 |
+| `relative` | 相对定位 | 相对于自身原位置 | 否 |
+| `absolute` | 绝对定位 | 相对于最近定位父元素 | 是 |
+| `fixed` | 固定定位 | 相对于视口 | 是 |
+| `sticky` | 粘性定位 | 滚动时"粘住" | 否 |
+
+### 3.2 定位详解
+
+#### relative（相对定位）
+```css
+.box {
+  position: relative;
+  top: 10px;      /* 向下移动10px */
+  left: 20px;     /* 向右移动20px */
+}
+```
+- 元素仍在文档流中
+- 相对于自身原位置偏移
+- 不影响其他元素布局
+
+#### absolute（绝对定位）
+```css
+.box {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+```
+- 脱离文档流
+- 相对于最近的非 `static` 定位父元素
+- 如果没有定位父元素，相对于 `<html>`
+
+#### fixed（固定定位）
+```css
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+}
+```
+- 脱离文档流
+- 相对于视口定位
+- 滚动时位置不变
+
+#### sticky（粘性定位）
 ```css
 .sticky-header {
   position: sticky;
   top: 0;
-  /* 背景模糊效果 */
-  backdrop-filter: blur(5px);
-  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 100;
+}
+```
+- 在正常文档流中表现为 `relative`
+- 滚动到指定位置时变为 `fixed`
+- 父容器滚动出视口时，元素随之滚动
+
+**应用案例**：固定导航栏
+```html
+<nav class="sticky-nav">
+  <a href="#">首页</a>
+  <a href="#">产品</a>
+  <a href="#">关于</a>
+</nav>
+```
+
+```css
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   z-index: 100;
 }
 ```
 
-**工作原理**：
-- 在正常文档流中表现为 `relative`
-- 滚动到指定位置（如 `top: 0`）时变为 `fixed`
-- 父容器滚动出视口时，元素随之滚动
-
-**应用场景**：固定导航栏、表格标题行、侧边栏目录
-
-#### 容器查询（Container Queries）
-
-容器查询允许基于父容器的尺寸而非视口尺寸来应用样式，这是响应式设计的重大突破。
+### 3.3 z-index 层级
 
 ```css
-/* 定义容器上下文 */
-.card-container {
-  container-type: inline-size;
-  container-name: card-container;
+.box1 { z-index: 1; }
+.box2 { z-index: 2; }  /* 显示在上层 */
+.box3 { z-index: 10; } /* 显示在最上层 */
+```
+
+**注意**：
+- 只对定位元素（非 `static`）生效
+- 值越大，层级越高
+- 同一层叠上下文内比较
+
+---
+
+## 四、显示与可见性
+
+### 4.1 display 属性
+
+| 值 | 说明 | 特点 |
+|---|------|------|
+| `block` | 块级元素 | 独占一行，可设置宽高 |
+| `inline` | 行内元素 | 不独占一行，不可设置宽高 |
+| `inline-block` | 行内块 | 不独占一行，可设置宽高 |
+| `none` | 隐藏 | 不占据空间，不渲染 |
+| `flex` | 弹性布局 | 见 Flexbox 章节 |
+| `grid` | 网格布局 | 见 Grid 章节 |
+
+### 4.2 visibility 属性
+
+```css
+.hidden {
+  visibility: hidden;  /* 隐藏但占据空间 */
 }
 
-/* 基于容器宽度应用样式 */
-@container card-container (min-width: 400px) {
-  .card {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-  }
-}
-
-/* 使用容器名称 */
-@container sidebar (min-width: 300px) {
-  .widget {
-    font-size: 1.2em;
-  }
+.visible {
+  visibility: visible; /* 显示（默认） */
 }
 ```
 
-**容器查询属性**：
-- `container-type`：`inline-size`（基于宽度）或 `size`（基于宽高）
-- `container-name`：为容器命名，便于精确查询
+**与 `display: none` 的区别**：
+- `display: none`：不占据空间，不渲染
+- `visibility: hidden`：占据空间，不显示
 
-**应用场景**：组件级响应式设计、卡片布局适配、侧边栏自适应
-
-#### 子网格（Subgrid）
-
-Subgrid 允许网格项目继承父网格的轨道定义，创建嵌套网格布局。
+### 4.3 opacity 透明度
 
 ```css
-.parent-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.child-item {
-  display: grid;
-  /* 继承父网格的列定义 */
-  grid-template-columns: subgrid;
-  grid-column: span 2; /* 跨越2列 */
+.transparent {
+  opacity: 0.5;        /* 0-1之间，0完全透明，1完全不透明 */
 }
 ```
 
-**注意**：Subgrid 目前浏览器支持有限，建议谨慎使用。
+**特点**：
+- 影响元素及其所有子元素
+- 元素仍占据空间
+- 仍可响应事件（可点击）
 
-**应用场景**：复杂嵌套布局、对齐多个网格项目
+---
 
-### 3.2 性能优化
+## 五、字体与文本
 
-#### GPU 加速
-
-通过触发 GPU 硬件加速，可以显著提升动画和变换的性能。
-
-```css
-.animate {
-  /* 提示浏览器该元素将发生变化 */
-  will-change: transform;
-  /* 触发硬件加速（创建新的层叠上下文） */
-  transform: translateZ(0);
-  /* 或者使用 */
-  transform: translate3d(0, 0, 0);
-}
-```
-
-**最佳实践**：
-- 仅在需要时使用 `will-change`，使用后及时移除
-- 优先使用 `transform` 和 `opacity` 做动画（不会触发重排）
-- 避免频繁修改 `will-change`
-
-#### CSS 变量（自定义属性）
-
-CSS 自定义属性提供了强大的主题系统和动态样式能力。
+### 5.1 字体属性
 
 ```css
-/* 定义全局变量 */
-:root {
-  --primary-color: #2196F3;
-  --spacing-unit: 8px;
-  --border-radius: 4px;
-}
-
-/* 使用变量 */
-.button {
-  background: var(--primary-color);
-  padding: calc(var(--spacing-unit) * 2);
-  border-radius: var(--border-radius);
-}
-
-/* 变量作用域和继承 */
-.card {
-  --card-bg: #ffffff;
-  background: var(--card-bg);
-}
-
-/* 变量默认值 */
 .text {
-  color: var(--text-color, #333333);
-}
-
-/* 在 JavaScript 中动态修改 */
-/* document.documentElement.style.setProperty('--primary-color', '#ff0000'); */
-```
-
-**高级用法**：
-- 变量可以嵌套使用
-- 支持 `calc()` 计算
-- 可以通过 JavaScript 动态修改
-- 支持作用域和继承
-
-#### 内容可见性（Content Visibility）
-
-`content-visibility` 可以跳过不可见内容的渲染，大幅提升初始加载性能。
-
-```css
-.long-list {
-  /* 跳过不在视口内的内容渲染 */
-  content-visibility: auto;
-  /* 保持元素尺寸，避免布局抖动 */
-  contain-intrinsic-size: 200px;
-}
-
-/* 完全跳过渲染（需要手动控制显示） */
-.hidden-section {
-  content-visibility: hidden;
+  font-family: "Microsoft YaHei", Arial, sans-serif;  /* 字体族 */
+  font-size: 16px;                                     /* 字体大小 */
+  font-weight: 400;                                    /* 字重：100-900 */
+  font-style: normal;                                  /* 样式：normal/italic/oblique */
+  font-variant: normal;                                /* 变体 */
+  line-height: 1.5;                                    /* 行高 */
 }
 ```
 
-**应用场景**：长列表、折叠内容、标签页内容
+**font-weight 取值**：
+- `100-900`：数字值（400=normal，700=bold）
+- `normal`：400
+- `bold`：700
+- `lighter`：比父元素更细
+- `bolder`：比父元素更粗
 
-#### 容器类型（Contain）
+**line-height 取值**：
+- 数字：`1.5`（推荐，相对于字体大小）
+- 长度：`20px`、`1.5em`
+- 百分比：`150%`
 
-`contain` 属性告诉浏览器元素及其子元素与文档树的其余部分隔离，优化渲染性能。
+### 5.2 文本属性
 
 ```css
-.widget {
-  /* 布局隔离：子元素不影响外部布局 */
-  contain: layout;
-  /* 样式隔离：子元素样式不影响外部 */
-  contain: style;
-  /* 绘制隔离：子元素绘制不影响外部 */
-  contain: paint;
-  /* 尺寸隔离：子元素尺寸变化不影响外部 */
-  contain: size;
-  /* 组合使用 */
-  contain: layout style paint;
-  /* 严格隔离（所有类型） */
-  contain: strict;
+.text {
+  color: #333;                    /* 文字颜色 */
+  text-align: left;               /* 对齐：left/center/right/justify */
+  text-decoration: none;           /* 装饰：none/underline/line-through */
+  text-transform: none;            /* 转换：none/uppercase/lowercase/capitalize */
+  text-indent: 2em;               /* 首行缩进 */
+  letter-spacing: 1px;            /* 字符间距 */
+  word-spacing: 2px;              /* 单词间距 */
+  white-space: normal;            /* 空白处理 */
+  word-wrap: break-word;          /* 单词换行 */
+  text-overflow: ellipsis;        /* 文本溢出：ellipsis/clip */
 }
 ```
 
-**性能收益**：
-- 减少重排和重绘范围
-- 优化浏览器渲染计算
-- 提升滚动性能
-
-**应用场景**：独立组件、复杂嵌套结构、频繁更新的元素
-
-### 3.3 常见问题解决方案
-
-#### 垂直居中终极方案
-
-现代 CSS 提供了多种简洁的居中方案。
+### 5.3 文本溢出处理
 
 ```css
-/* 方案1：Grid（推荐） */
-.center {
-  display: grid;
-  place-items: center; /* 水平和垂直居中 */
+/* 单行文本溢出 */
+.single-line {
+  white-space: nowrap;           /* 不换行 */
+  overflow: hidden;               /* 隐藏溢出 */
+  text-overflow: ellipsis;        /* 显示省略号 */
 }
 
-/* 方案2：Flexbox */
-.center-flex {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* 多行文本溢出（-webkit-前缀） */
+.multi-line {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;         /* 显示3行 */
+  overflow: hidden;
+}
+```
+
+**案例**：卡片标题截断
+```html
+<div class="card">
+  <h3 class="card-title">这是一个很长的标题文本，超出部分会被截断显示省略号</h3>
+  <p class="card-desc">这是描述文本，可以显示多行，超出部分也会被截断</p>
+</div>
+```
+
+```css
+.card-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 方案3：绝对定位 + Transform */
-.center-absolute {
+.card-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+```
+
+---
+
+## 六、颜色与背景
+
+### 6.1 颜色表示
+
+```css
+.element {
+  color: #ff0000;                 /* 十六进制 */
+  color: rgb(255, 0, 0);          /* RGB */
+  color: rgba(255, 0, 0, 0.5);    /* RGBA（带透明度） */
+  color: hsl(0, 100%, 50%);      /* HSL */
+  color: hsla(0, 100%, 50%, 0.5); /* HSLA */
+  color: red;                     /* 颜色名称 */
+}
+```
+
+### 6.2 背景属性
+
+```css
+.box {
+  background-color: #fff;         /* 背景颜色 */
+  background-image: url('bg.jpg'); /* 背景图片 */
+  background-repeat: no-repeat;   /* 重复：repeat/no-repeat/repeat-x/repeat-y */
+  background-position: center;    /* 位置：center/top/left/50% 50% */
+  background-size: cover;         /* 尺寸：cover/contain/100% 100% */
+  background-attachment: fixed;   /* 固定：scroll/fixed */
+}
+```
+
+**background-size 取值**：
+- `cover`：覆盖整个容器，可能裁剪
+- `contain`：完整显示，可能留白
+- `100% 100%`：指定宽高
+- `50px 50px`：固定尺寸
+
+**案例**：全屏背景
+```css
+.hero {
+  background-image: url('hero.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+```
+
+### 6.3 渐变背景
+
+```css
+/* 线性渐变 */
+.gradient {
+  background: linear-gradient(to right, #ff0000, #0000ff);
+  background: linear-gradient(45deg, #ff0000, #0000ff);
+  background: linear-gradient(to bottom, #ff0000, #00ff00, #0000ff);
+}
+
+/* 径向渐变 */
+.radial {
+  background: radial-gradient(circle, #ff0000, #0000ff);
+  background: radial-gradient(ellipse at center, #ff0000, #0000ff);
+}
+```
+
+---
+
+## 七、层叠与优先级
+
+### 7.1 优先级计算
+
+| 选择器类型 | 示例 | 权重值 |
+|-----------|------|--------|
+| `!important` | `color: red !important;` | ∞ |
+| 内联样式 | `style="color: red;"` | 1000 |
+| ID选择器 | `#header` | 100 |
+| 类/属性/伪类 | `.active`、`[type]`、`:hover` | 10 |
+| 元素/伪元素 | `div`、`::before` | 1 |
+
+**计算规则**：
+- 权重值相加，值越大优先级越高
+- 相同权重，后定义的覆盖先定义的
+- `!important` 优先级最高
+
+**示例**：
+```css
+/* 权重：100 + 10 = 110 */
+#header .active { color: red; }
+
+/* 权重：10 + 1 = 11 */
+.container div { color: blue; }
+
+/* 权重：1 + 1 = 2 */
+div p { color: green; }
+```
+
+### 7.2 继承控制
+
+```css
+/* 强制继承 */
+.child {
+  color: inherit;
+}
+
+/* 阻止继承 */
+.parent {
+  all: unset;        /* 重置所有属性 */
+  color: initial;    /* 重置为初始值 */
+}
+```
+
+**可继承属性**：
+- 文本相关：`color`、`font-*`、`text-*`、`line-height`
+- 列表相关：`list-style-*`
+- 其他：`visibility`、`cursor`
+
+**不可继承属性**：
+- 盒模型：`width`、`height`、`margin`、`padding`、`border`
+- 定位：`position`、`top`、`left`
+- 显示：`display`、`float`
+
+---
+
+## 八、BFC（块级格式化上下文）
+
+### 8.1 BFC 触发条件
+
+```css
+/* 触发 BFC 的方式 */
+.element {
+  overflow: hidden;        /* 或 auto、scroll */
+  display: flow-root;       /* 推荐，语义明确 */
+  display: inline-block;
+  display: table-cell;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: fixed;
+  float: left;              /* 或 right */
 }
 ```
 
-#### 1px 边框问题
+### 8.2 BFC 作用
 
-在高 DPI 屏幕上，1px 可能显示过粗，需要使用缩放技巧。
+1. **清除浮动**
+```html
+<div class="container">
+  <div class="float-left">浮动元素</div>
+</div>
+```
 
 ```css
-.thin-border {
-  position: relative;
+.float-left {
+  float: left;
 }
 
-.thin-border::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  /* 缩放0.5倍，实现0.5px效果 */
-  transform: scale(0.5);
-  transform-origin: 0 0;
-  border: 1px solid #000;
-  box-sizing: border-box;
-}
-
-/* 现代方案：使用设备像素比 */
-@media (-webkit-min-device-pixel-ratio: 2) {
-  .thin-border {
-    border-width: 0.5px;
-  }
+.container {
+  overflow: hidden;        /* 触发 BFC，清除浮动 */
 }
 ```
 
-#### CSS 层叠层（@layer）
-
-CSS 层叠层提供了更精确的样式优先级控制，解决样式冲突问题。
-
+2. **防止外边距合并**
 ```css
-/* 定义层叠层顺序 */
-@layer reset, base, components, utilities;
-
-/* 重置层 */
-@layer reset {
-  * {
-    margin: 0;
-    padding: 0;
-  }
+.parent {
+  overflow: hidden;          /* 触发 BFC */
 }
 
-/* 基础层 */
-@layer base {
-  body {
-    font-family: system-ui;
-  }
-}
-
-/* 组件层 */
-@layer components {
-  .button {
-    padding: 0.5em 1em;
-  }
-}
-
-/* 工具层（优先级最高） */
-@layer utilities {
-  .text-center {
-    text-align: center;
-  }
+.child {
+  margin-top: 20px;         /* 不会与父元素合并 */
 }
 ```
 
-**层叠层优势**：
-- 明确的优先级顺序
-- 避免 `!important` 滥用
-- 更好的样式组织和管理
+3. **隔离布局**
+```css
+.sidebar {
+  display: flow-root;       /* 触发 BFC */
+  /* 内部布局不影响外部 */
+}
+```
 
-**应用场景**：大型项目样式管理、第三方样式集成、主题系统
+---
+
+## 九、核心面试题
+
+### 1. 盒模型的两种模式？
+- **标准盒模型**：`width` 仅包含内容
+- **IE盒模型**：`box-sizing: border-box`，`width` 包含 padding 和 border
+
+### 2. 定位属性的区别？
+- `static`：默认，正常文档流
+- `relative`：相对定位，相对于自身
+- `absolute`：绝对定位，相对于定位父元素
+- `fixed`：固定定位，相对于视口
+- `sticky`：粘性定位，滚动时"粘住"
+
+### 3. `display: none` 和 `visibility: hidden` 的区别？
+- `display: none`：不占据空间，不渲染
+- `visibility: hidden`：占据空间，不显示
+
+### 4. CSS 优先级如何计算？
+- `!important` > 内联样式 > ID选择器 > 类选择器 > 元素选择器
+- 权重值相加，值越大优先级越高
+
+### 5. BFC 的作用？
+- 清除浮动
+- 防止外边距合并
+- 隔离布局
+
+### 6. 如何实现文本溢出显示省略号？
+```css
+.single-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+```
+
+### 7. 外边距合并的解决方案？
+- 使用 `padding` 代替 `margin`
+- 创建 BFC（`overflow: hidden` 或 `display: flow-root`）
+- 使用 Flexbox/Grid 的 `gap` 属性

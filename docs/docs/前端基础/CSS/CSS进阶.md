@@ -4,35 +4,30 @@
 
 ### 1.1 link 与 @import 的区别
 
-在 HTML 中引入 CSS 有两种主要方式：`<link>` 标签和 `@import` 规则。它们在使用场景和性能表现上有显著差异。
-
-**主要区别：**
-
 | 特性 | `<link>` | `@import` |
 |------|----------|-----------|
-| **标签类型** | HTML 标签 | CSS 提供的规则 |
+| **标签类型** | HTML 标签 | CSS 规则 |
 | **加载时机** | 页面加载时同步加载 | 页面加载完成后才加载 |
 | **阻塞渲染** | 会阻塞渲染 | 不会阻塞渲染（但可能导致 FOUC） |
 | **浏览器兼容性** | 所有浏览器支持 | IE5+ 支持 |
 | **优先级** | 较高 | 较低 |
 | **使用场景** | 推荐用于主要样式表 | 适用于条件加载或模块化 |
 
-**实际应用建议：**
-
+**实际应用**：
 ```html
-<!-- 推荐：使用 link 引入主要样式 -->
+<!-- ✅ 推荐：使用 link 引入主要样式 -->
 <link rel="stylesheet" href="main.css">
 
-<!-- 不推荐：使用 @import -->
+<!-- ❌ 不推荐：使用 @import -->
 <style>
   @import url('styles.css');
 </style>
 ```
 
-**性能影响：**
-- `@import` 会导致额外的 HTTP 请求，增加页面加载时间
-- `@import` 可能造成样式闪烁（FOUC - Flash of Unstyled Content）
-- 现代构建工具（如 Webpack、Vite）会将 `@import` 在构建时处理，避免运行时问题
+**性能影响**：
+- `@import` 会导致额外的 HTTP 请求
+- `@import` 可能造成样式闪烁（FOUC）
+- 现代构建工具会在构建时处理 `@import`
 
 ---
 
@@ -40,44 +35,36 @@
 
 ### 2.1 Chrome 中文界面下 12px 文本限制
 
-**问题描述：**
-Chrome 浏览器在中文界面下，默认会将小于 12px 的文本强制按照 12px 显示，这是为了提升中文可读性。
+**问题**：Chrome 浏览器在中文界面下，默认会将小于 12px 的文本强制按照 12px 显示。
 
-**解决方案：**
-
+**解决方案**：
 ```css
-/* 方案1：使用 -webkit-text-size-adjust（不推荐，影响可访问性） */
+/* ❌ 不推荐：影响可访问性 */
 .small-text {
   -webkit-text-size-adjust: none;
   font-size: 10px;
 }
 
-/* 方案2：使用 transform: scale()（推荐） */
+/* ✅ 推荐：使用 transform */
 .small-text {
   font-size: 12px;
-  transform: scale(0.83); /* 12px * 0.83 ≈ 10px */
+  transform: scale(0.83);        /* 12px * 0.83 ≈ 10px */
   transform-origin: left top;
 }
 
-/* 方案3：使用相对单位（最佳实践） */
+/* ✅ 最佳：使用相对单位 */
 .small-text {
-  font-size: 0.625rem; /* 10px (假设根字体为16px) */
+  font-size: 0.625rem;            /* 10px (假设根字体为16px) */
 }
 ```
 
-**注意事项：**
-- `-webkit-text-size-adjust: none` 会禁用用户的可访问性设置，不推荐使用
-- 现代浏览器已改进此行为，建议使用相对单位（rem、em）而非固定像素值
-
 ### 2.2 超链接伪类顺序问题
 
-**问题描述：**
-当超链接被访问后，`:hover` 和 `:active` 样式可能失效，这是因为 CSS 优先级和层叠规则导致的。
+**问题**：当超链接被访问后，`:hover` 和 `:active` 样式可能失效。
 
 **解决方案：遵循 LVHA 顺序**
-
 ```css
-/* 正确的顺序：Link → Visited → Hover → Active */
+/* ✅ 正确顺序：Link → Visited → Hover → Active */
 a:link {
   color: blue;
   text-decoration: none;
@@ -97,12 +84,7 @@ a:active {
 }
 ```
 
-**记忆技巧：** LoVe HAte（爱恨）- Link, Visited, Hover, Active
-
-**原理说明：**
-- 后定义的样式会覆盖先定义的样式
-- `:visited` 的优先级与 `:link` 相同，如果放在 `:hover` 后面会覆盖 hover 效果
-- 正确的顺序确保每种状态都能正确显示
+**记忆技巧**：LoVe HAte（爱恨）- Link, Visited, Hover, Active
 
 ---
 
@@ -110,44 +92,35 @@ a:active {
 
 ### 3.1 外边距合并（Margin Collapse）
 
-**问题描述：**
-相邻元素的垂直外边距（`margin-top` 和 `margin-bottom`）会发生合并，取较大值。水平外边距不会合并。
-
-**触发条件：**
-- 相邻的块级元素
-- 父子元素之间（子元素的 margin-top 会与父元素的 margin-top 合并）
+**触发条件**：
+- 相邻块级元素的垂直外边距
+- 父子元素之间（子元素的 margin-top 与父元素的 margin-top 合并）
 - 空元素（只有 margin，没有内容）
 
-**解决方案：**
-
+**解决方案**：
 ```css
 /* 方案1：统一使用 margin-top 或 margin-bottom */
 .section {
-  margin-bottom: 20px; /* 统一使用 */
+  margin-bottom: 20px;           /* 统一使用 */
 }
 
 /* 方案2：使用 padding 代替 margin */
 .container {
-  padding-bottom: 20px; /* padding 不会合并 */
+  padding-bottom: 20px;          /* padding 不会合并 */
 }
 
-/* 方案3：创建 BFC（块级格式化上下文） */
+/* 方案3：创建 BFC */
 .parent {
-  overflow: hidden; /* 或 display: flow-root */
+  overflow: hidden;               /* 或 display: flow-root */
 }
 
-/* 方案4：使用 Flexbox 或 Grid */
+/* 方案4：使用 Flexbox 或 Grid 的 gap */
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* gap 不会合并 */
+  gap: 20px;                     /* gap 不会合并 */
 }
 ```
-
-**最佳实践：**
-- 使用 Flexbox 的 `gap` 属性或 Grid 的 `gap` 属性
-- 统一使用 `margin-top` 或 `margin-bottom`，避免混用
-- 使用 `display: flow-root` 创建 BFC（现代方案）
 
 ---
 
@@ -155,30 +128,23 @@ a:active {
 
 ### 4.1 重绘（Repaint）与重排（Reflow）
 
-理解浏览器的渲染机制对于性能优化至关重要。重绘和重排是浏览器渲染过程中的两个关键概念。
+#### 重绘（Repaint）
+**定义**：元素外观改变，但不影响布局时，浏览器重新绘制元素。
 
-#### 重绘（Repaint / Redraw）
-
-**定义：**
-重绘是指当元素的外观属性发生改变，但不影响布局时，浏览器重新绘制元素的过程。
-
-**触发条件：**
+**触发条件**：
 - 改变颜色：`color`、`background-color`
 - 改变边框样式：`border-style`、`border-color`
-- 改变可见性：`visibility`（注意：`display: none` 会触发重排）
+- 改变可见性：`visibility`
 - 改变轮廓：`outline`
 
-**特点：**
-- 只影响元素的外观，不改变布局
+**特点**：
+- 只影响元素外观，不改变布局
 - 性能开销相对较小
-- 不会影响其他元素
 
-#### 重排（Reflow / Layout）
+#### 重排（Reflow）
+**定义**：元素布局属性改变，导致渲染树需要重新计算布局。
 
-**定义：**
-重排是指当元素的布局属性发生改变，导致渲染树需要重新计算布局时，浏览器重新构建布局的过程。
-
-**触发条件：**
+**触发条件**：
 
 1. **DOM 结构变化**
    - 添加或删除可见的 DOM 元素
@@ -200,46 +166,41 @@ a:active {
 
 5. **读取布局属性**（强制同步布局）
    ```javascript
-   // 这些操作会强制浏览器立即计算布局
+   // ❌ 这些操作会强制浏览器立即计算布局
    element.offsetLeft
    element.offsetTop
    element.offsetWidth
    element.offsetHeight
    element.clientWidth
    element.clientHeight
-   element.scrollWidth
-   element.scrollHeight
    element.getComputedStyle()
    ```
 
-**重排与重绘的关系：**
+**重排与重绘的关系**：
 - **重排必定会引发重绘**：布局改变后需要重新绘制
 - **重绘不一定会引发重排**：只改变外观时不需要重新布局
 
-**性能影响：**
+**性能影响**：
 - 重排的性能开销远大于重绘
 - 频繁的重排会导致页面卡顿
-- 现代浏览器会批量处理重排，但仍需注意优化
 
 ### 4.2 性能优化策略
 
 #### 1. 减少重排和重绘
-
 ```css
-/* 使用 transform 和 opacity（不会触发重排） */
+/* ✅ 使用 transform 和 opacity（不会触发重排） */
 .animate {
-  transform: translateX(100px); /* 使用 transform 而非 left */
-  opacity: 0.5; /* 使用 opacity 而非 visibility */
+  transform: translateX(100px);   /* 使用 transform 而非 left */
+  opacity: 0.5;                   /* 使用 opacity 而非 visibility */
 }
 
-/* 使用 will-change 提示浏览器 */
+/* ✅ 使用 will-change 提示浏览器 */
 .will-animate {
   will-change: transform;
 }
 ```
 
 ```javascript
-// 批量 DOM 操作
 // ❌ 不好：多次重排
 element.style.width = '100px';
 element.style.height = '100px';
@@ -252,7 +213,6 @@ element.style.cssText = 'width: 100px; height: 100px; margin: 10px;';
 ```
 
 #### 2. 避免强制同步布局
-
 ```javascript
 // ❌ 不好：强制同步布局（布局抖动）
 for (let i = 0; i < items.length; i++) {
@@ -267,7 +227,6 @@ items.forEach((item, i) => {
 ```
 
 #### 3. 使用文档片段
-
 ```javascript
 // ❌ 不好：多次 DOM 操作
 for (let i = 0; i < 1000; i++) {
@@ -282,18 +241,15 @@ for (let i = 0; i < 1000; i++) {
 container.appendChild(fragment);
 ```
 
-#### 4. 使用虚拟滚动
-
-对于长列表，使用虚拟滚动技术只渲染可见区域的内容。
-
 ---
 
 ## 五、现代 CSS 特性
 
-### 5.1 CSS 变量（自定义属性）高级用法
+### 5.1 CSS 变量（自定义属性）
 
+#### 基础用法
 ```css
-/* 定义变量 */
+/* 定义全局变量 */
 :root {
   --primary-color: #2196F3;
   --spacing-unit: 8px;
@@ -301,17 +257,18 @@ container.appendChild(fragment);
   
   /* 变量可以引用其他变量 */
   --card-padding: calc(var(--spacing-unit) * 2);
-  
-  /* 支持媒体查询 */
-  --font-size: 16px;
 }
 
-@media (max-width: 768px) {
-  :root {
-    --font-size: 14px;
-  }
+/* 使用变量 */
+.button {
+  background: var(--primary-color);
+  padding: calc(var(--spacing-unit) * 2);
+  border-radius: var(--border-radius);
 }
+```
 
+#### 作用域和继承
+```css
 /* 作用域变量 */
 .card {
   --card-bg: #ffffff;
@@ -319,51 +276,92 @@ container.appendChild(fragment);
 }
 
 .card.dark {
-  --card-bg: #1a1a1a; /* 覆盖父级变量 */
+  --card-bg: #1a1a1a;           /* 覆盖父级变量 */
 }
+```
 
-/* 变量默认值 */
+#### 变量默认值
+```css
 .text {
-  color: var(--text-color, #333333);
+  color: var(--text-color, #333333);  /* 如果变量不存在，使用默认值 */
+}
+```
+
+#### JavaScript 动态修改
+```javascript
+// 修改 CSS 变量
+document.documentElement.style.setProperty('--primary-color', '#ff0000');
+
+// 读取 CSS 变量
+const primaryColor = getComputedStyle(document.documentElement)
+  .getPropertyValue('--primary-color');
+```
+
+**案例**：主题切换
+```html
+<button onclick="toggleTheme()">切换主题</button>
+<div class="card">卡片内容</div>
+```
+
+```css
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
 }
 
-/* JavaScript 动态修改 */
-/* document.documentElement.style.setProperty('--primary-color', '#ff0000'); */
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+}
+
+.card {
+  background: var(--bg-color);
+  color: var(--text-color);
+  padding: 1rem;
+  border-radius: 8px;
+}
+```
+
+```javascript
+function toggleTheme() {
+  const root = document.documentElement;
+  const currentTheme = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+}
 ```
 
 ### 5.2 新的视口单位
 
-现代浏览器引入了新的视口单位，更好地处理移动端浏览器 UI 的影响。
+| 单位 | 说明 | 特点 |
+|------|------|------|
+| `vw` / `vh` | 传统视口单位 | 可能包含浏览器 UI |
+| `dvw` / `dvh` | 动态视口单位 | 自动适应浏览器 UI 变化 |
+| `svw` / `svh` | 小视口单位 | 不考虑浏览器 UI |
+| `lvw` / `lvh` | 大视口单位 | 不考虑浏览器 UI |
 
 ```css
 /* 传统视口单位 */
 .fullscreen {
-  width: 100vw;  /* 视口宽度 */
-  height: 100vh; /* 视口高度 */
+  width: 100vw;                 /* 视口宽度 */
+  height: 100vh;                /* 视口高度 */
 }
 
-/* 动态视口单位（考虑浏览器 UI） */
+/* 动态视口单位（推荐移动端） */
 .modal {
-  height: 100dvh; /* 动态视口高度 */
-  width: 100dvw;  /* 动态视口宽度 */
+  height: 100dvh;               /* 动态视口高度 */
+  width: 100dvw;                /* 动态视口宽度 */
 }
 
-/* 小视口单位（不考虑浏览器 UI） */
+/* 小视口单位 */
 .mobile-header {
-  height: 100svh; /* 小视口高度 */
-}
-
-/* 大视口单位（不考虑浏览器 UI） */
-.desktop-layout {
-  height: 100lvh; /* 大视口高度 */
+  height: 100svh;               /* 小视口高度 */
 }
 ```
 
-**单位说明：**
-- `vw` / `vh`：传统视口单位，可能包含浏览器 UI
-- `dvw` / `dvh`：动态视口单位，自动适应浏览器 UI 变化
-- `svw` / `svh`：小视口单位，不考虑浏览器 UI
-- `lvw` / `lvh`：大视口单位，不考虑浏览器 UI
+**应用场景**：
+- `dvh`：移动端全屏弹窗（考虑地址栏）
+- `svh`：固定头部高度
+- `vh`：桌面端全屏布局
 
 ### 5.3 逻辑属性（Logical Properties）
 
@@ -382,83 +380,541 @@ container.appendChild(fragment);
 
 /* 逻辑属性（自动适应书写方向） */
 .box {
-  margin-block-start: 10px;  /* 块级开始（上/右，取决于方向） */
-  margin-inline-end: 20px;    /* 行内结束（右/左） */
-  margin-block-end: 10px;     /* 块级结束（下/左） */
-  margin-inline-start: 20px;  /* 行内开始（左/右） */
+  margin-block-start: 10px;     /* 块级开始（上/右，取决于方向） */
+  margin-inline-end: 20px;      /* 行内结束（右/左） */
+  margin-block-end: 10px;        /* 块级结束（下/左） */
+  margin-inline-start: 20px;     /* 行内开始（左/右） */
   padding-inline-start: 15px;
   border-inline-end: 1px solid #000;
 }
 
 /* 简写形式 */
 .box {
-  margin-block: 10px;      /* 块级方向（上下） */
-  margin-inline: 20px;     /* 行内方向（左右） */
+  margin-block: 10px;            /* 块级方向（上下） */
+  margin-inline: 20px;           /* 行内方向（左右） */
 }
 ```
 
-**应用场景：**
+**应用场景**：
 - 多语言网站（支持 RTL 语言）
 - 响应式设计
 - 国际化应用
 
 ---
 
-## 六、性能优化最佳实践
+## 六、动画与变换
 
-### 6.1 选择器性能
+### 6.1 Transform（变换）
 
+#### 变换函数
 ```css
-/* ❌ 性能较差：深层嵌套选择器 */
-div > div > div > div > .item { }
-
-/* ✅ 性能较好：直接选择器 */
-.item { }
-
-/* ✅ 使用属性选择器时指定元素 */
-input[type="text"] { }
-```
-
-### 6.2 避免昂贵的属性
-
-```css
-/* 昂贵的属性（会触发重排） */
 .element {
-  /* box-shadow: 0 0 10px rgba(0,0,0,0.5); */
-  /* filter: blur(5px); */
-  /* border-radius: 50%; */
-}
-
-/* 使用 transform 和 opacity（GPU 加速） */
-.animate {
-  transform: translateX(100px);
-  opacity: 0.5;
+  /* 平移 */
+  transform: translateX(100px);      /* 水平移动 */
+  transform: translateY(50px);       /* 垂直移动 */
+  transform: translate(100px, 50px); /* 同时移动 */
+  
+  /* 旋转 */
+  transform: rotate(45deg);          /* 旋转45度 */
+  
+  /* 缩放 */
+  transform: scale(1.5);             /* 放大1.5倍 */
+  transform: scaleX(1.5);            /* 水平放大 */
+  transform: scaleY(1.5);            /* 垂直放大 */
+  transform: scale(1.5, 0.8);       /* 水平1.5倍，垂直0.8倍 */
+  
+  /* 倾斜 */
+  transform: skewX(15deg);           /* 水平倾斜 */
+  transform: skewY(15deg);           /* 垂直倾斜 */
+  transform: skew(15deg, 10deg);     /* 同时倾斜 */
+  
+  /* 组合变换 */
+  transform: translate(50px, 50px) rotate(45deg) scale(1.2);
 }
 ```
 
-### 6.3 使用 contain 属性
+**注意**：变换不会触发重排，只触发重绘，性能好。
+
+#### 变换原点
+```css
+.element {
+  transform-origin: center;          /* 中心（默认） */
+  transform-origin: top left;       /* 左上角 */
+  transform-origin: 50% 50%;        /* 中心（百分比） */
+  transform-origin: 20px 30px;     /* 固定位置 */
+}
+```
+
+**案例**：卡片悬停效果
+```html
+<div class="card">
+  <h3>标题</h3>
+  <p>内容...</p>
+</div>
+```
 
 ```css
-.widget {
-  /* 布局隔离 */
-  contain: layout;
-  /* 样式隔离 */
-  contain: style;
-  /* 绘制隔离 */
-  contain: paint;
-  /* 组合使用 */
-  contain: layout style paint;
+.card {
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+```
+
+### 6.2 Transition（过渡）
+
+```css
+.element {
+  /* 简写：属性 时长 缓动函数 延迟 */
+  transition: all 0.3s ease 0s;
+  
+  /* 分别设置 */
+  transition-property: transform, opacity;  /* 要过渡的属性 */
+  transition-duration: 0.3s;                /* 过渡时长 */
+  transition-timing-function: ease;        /* 缓动函数 */
+  transition-delay: 0s;                     /* 延迟时间 */
+}
+```
+
+**transition-property 取值**：
+- `all`：所有属性
+- 具体属性：`transform`、`opacity`、`color` 等
+
+**transition-timing-function 取值**：
+- `ease`（默认）：慢-快-慢
+- `linear`：匀速
+- `ease-in`：慢-快
+- `ease-out`：快-慢
+- `ease-in-out`：慢-快-慢
+- `cubic-bezier(0.4, 0, 0.2, 1)`：自定义贝塞尔曲线
+
+**案例**：按钮交互
+```css
+.button {
+  background: #2196F3;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #1976D2;
+  transform: translateY(-2px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+```
+
+### 6.3 Animation（动画）
+
+#### 定义关键帧
+```css
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 多关键帧 */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+```
+
+#### 应用动画
+```css
+.element {
+  /* 简写：名称 时长 缓动函数 延迟 次数 方向 填充模式 */
+  animation: slideIn 0.5s ease 0s 1 normal forwards;
+  
+  /* 分别设置 */
+  animation-name: slideIn;              /* 动画名称 */
+  animation-duration: 0.5s;             /* 动画时长 */
+  animation-timing-function: ease;     /* 缓动函数 */
+  animation-delay: 0s;                  /* 延迟时间 */
+  animation-iteration-count: 1;         /* 重复次数：数字/infinite */
+  animation-direction: normal;          /* 方向：normal/reverse/alternate */
+  animation-fill-mode: forwards;        /* 填充模式 */
+  animation-play-state: running;        /* 播放状态：running/paused */
+}
+```
+
+**animation-fill-mode 取值**：
+- `none`（默认）：动画前后不应用样式
+- `forwards`：动画结束后保持最后一帧
+- `backwards`：动画开始前应用第一帧
+- `both`：同时应用 forwards 和 backwards
+
+**案例**：加载动画
+```html
+<div class="loading">
+  <div class="spinner"></div>
+</div>
+```
+
+```css
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2196F3;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 ```
 
 ---
 
-## 总结
+## 七、响应式设计
 
-理解 CSS 的加载机制、浏览器兼容性问题、布局特性和渲染机制，能够帮助我们编写更高效、更兼容的样式代码。现代 CSS 特性如变量、逻辑属性等，为开发提供了更多可能性。在实际开发中，应该：
+### 7.1 媒体查询
 
-1. **优先使用现代布局方案**（Flexbox、Grid）
-2. **注意性能优化**（减少重排重绘）
-3. **合理使用 CSS 变量**（主题系统、动态样式）
-4. **考虑浏览器兼容性**（使用工具如 Autoprefixer）
-5. **遵循最佳实践**（选择器性能、属性选择）
+#### 基础语法
+```css
+/* 视口宽度 */
+@media (min-width: 768px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+/* 视口高度 */
+@media (min-height: 600px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* 设备方向 */
+@media (orientation: landscape) {
+  .header {
+    height: 60px;
+  }
+}
+```
+
+#### 现代媒体特性
+```css
+/* 检测设备是否支持悬停 */
+@media (hover: hover) {
+  .button:hover {
+    background: #1976D2;
+  }
+}
+
+/* 暗黑模式 */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+#### 组合查询
+```css
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) and (hover: hover) {
+  .card:hover {
+    transform: scale(1.05);
+  }
+}
+```
+
+**案例**：响应式导航栏
+```html
+<nav class="navbar">
+  <div class="logo">Logo</div>
+  <ul class="menu">
+    <li>首页</li>
+    <li>产品</li>
+    <li>关于</li>
+  </ul>
+  <button class="menu-toggle">菜单</button>
+</nav>
+```
+
+```css
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.menu {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.menu-toggle {
+  display: none;
+}
+
+/* 移动端：隐藏菜单，显示切换按钮 */
+@media (max-width: 768px) {
+  .menu {
+    display: none;
+  }
+  
+  .menu-toggle {
+    display: block;
+  }
+}
+```
+
+### 7.2 容器查询（Container Queries）
+
+容器查询允许基于父容器的尺寸而非视口尺寸来应用样式。
+
+```css
+/* 定义容器上下文 */
+.card-container {
+  container-type: inline-size;        /* 基于宽度 */
+  container-name: card-container;
+}
+
+/* 基于容器宽度应用样式 */
+@container card-container (min-width: 400px) {
+  .card {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+/* 使用容器名称 */
+@container sidebar (min-width: 300px) {
+  .widget {
+    font-size: 1.2em;
+  }
+}
+```
+
+**container-type 取值**：
+- `inline-size`：基于宽度
+- `size`：基于宽高
+- `normal`：不创建容器上下文
+
+**浏览器支持**：Chrome 105+、Firefox 110+、Safari 16+
+
+---
+
+## 八、性能优化
+
+### 8.1 GPU 加速
+
+通过触发 GPU 硬件加速，可以显著提升动画和变换的性能。
+
+```css
+.animate {
+  /* 提示浏览器该元素将发生变化 */
+  will-change: transform;
+  
+  /* 触发硬件加速（创建新的层叠上下文） */
+  transform: translateZ(0);
+  /* 或者使用 */
+  transform: translate3d(0, 0, 0);
+}
+```
+
+**最佳实践**：
+- 仅在需要时使用 `will-change`，使用后及时移除
+- 优先使用 `transform` 和 `opacity` 做动画（不会触发重排）
+- 避免频繁修改 `will-change`
+
+### 8.2 内容可见性（Content Visibility）
+
+`content-visibility` 可以跳过不可见内容的渲染，大幅提升初始加载性能。
+
+```css
+.long-list {
+  /* 跳过不在视口内的内容渲染 */
+  content-visibility: auto;
+  /* 保持元素尺寸，避免布局抖动 */
+  contain-intrinsic-size: 200px;
+}
+
+/* 完全跳过渲染（需要手动控制显示） */
+.hidden-section {
+  content-visibility: hidden;
+}
+```
+
+**content-visibility 取值**：
+- `visible`（默认）：正常渲染
+- `hidden`：跳过渲染
+- `auto`：自动跳过不可见内容
+
+**应用场景**：长列表、折叠内容、标签页内容
+
+### 8.3 容器类型（Contain）
+
+`contain` 属性告诉浏览器元素及其子元素与文档树的其余部分隔离，优化渲染性能。
+
+```css
+.widget {
+  /* 布局隔离：子元素不影响外部布局 */
+  contain: layout;
+  
+  /* 样式隔离：子元素样式不影响外部 */
+  contain: style;
+  
+  /* 绘制隔离：子元素绘制不影响外部 */
+  contain: paint;
+  
+  /* 尺寸隔离：子元素尺寸变化不影响外部 */
+  contain: size;
+  
+  /* 组合使用 */
+  contain: layout style paint;
+  
+  /* 严格隔离（所有类型） */
+  contain: strict;
+}
+```
+
+**性能收益**：
+- 减少重排和重绘范围
+- 优化浏览器渲染计算
+- 提升滚动性能
+
+**应用场景**：独立组件、复杂嵌套结构、频繁更新的元素
+
+---
+
+## 九、CSS 层叠层（@layer）
+
+CSS 层叠层提供了更精确的样式优先级控制，解决样式冲突问题。
+
+```css
+/* 定义层叠层顺序 */
+@layer reset, base, components, utilities;
+
+/* 重置层 */
+@layer reset {
+  * {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* 基础层 */
+@layer base {
+  body {
+    font-family: system-ui;
+  }
+}
+
+/* 组件层 */
+@layer components {
+  .button {
+    padding: 0.5em 1em;
+  }
+}
+
+/* 工具层（优先级最高） */
+@layer utilities {
+  .text-center {
+    text-align: center;
+  }
+}
+```
+
+**层叠层优势**：
+- 明确的优先级顺序
+- 避免 `!important` 滥用
+- 更好的样式组织和管理
+
+**浏览器支持**：Chrome 99+、Firefox 97+、Safari 15.4+
+
+---
+
+## 十、核心面试题
+
+### 1. link 和 @import 的区别？
+- `link`：HTML 标签，同步加载，阻塞渲染
+- `@import`：CSS 规则，异步加载，可能导致 FOUC
+
+### 2. 重绘和重排的区别？
+- **重绘**：外观改变，不影响布局，性能开销小
+- **重排**：布局改变，影响布局，性能开销大
+- **关系**：重排必定引发重绘，重绘不一定引发重排
+
+### 3. 如何优化 CSS 性能？
+- 使用 `transform` 和 `opacity` 做动画
+- 使用 `will-change` 提示浏览器
+- 使用 `content-visibility` 跳过不可见内容
+- 使用 `contain` 隔离布局
+- 避免强制同步布局
+
+### 4. CSS 变量的优势？
+- 支持作用域和继承
+- 可以通过 JavaScript 动态修改
+- 支持 `calc()` 计算
+- 实现主题切换更方便
+
+### 5. 如何实现主题切换？
+```css
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+}
+```
+
+### 6. 容器查询的作用？
+- 基于父容器尺寸而非视口尺寸应用样式
+- 实现组件级响应式设计
+- 更灵活的适配方案
+
+### 7. `will-change` 的使用注意？
+- 仅在需要时使用
+- 使用后及时移除
+- 避免频繁修改
+- 不要过度使用
