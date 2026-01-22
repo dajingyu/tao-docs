@@ -108,30 +108,6 @@
 - **`<progress>`**：进度条
 - **`<meter>`**：标量值显示（如磁盘使用量）
 
-#### 3.4 表单验证API
-```javascript
-// 自定义验证
-const input = document.querySelector('input[type="email"]');
-input.addEventListener('invalid', (e) => {
-  if (input.validity.typeMismatch) {
-    input.setCustomValidity('请输入有效的邮箱地址');
-  }
-});
-
-// 检查验证状态
-input.validity.valid          // 是否有效
-input.validity.valueMissing   // 是否缺少值
-input.validity.typeMismatch   // 类型是否匹配
-input.validity.patternMismatch // 模式是否匹配
-input.validity.tooLong        // 是否过长
-input.validity.tooShort       // 是否过短
-input.validity.rangeOverflow  // 是否超出最大值
-input.validity.rangeUnderflow // 是否低于最小值
-input.validity.stepMismatch  // 是否符合步进值
-input.validity.badInput      // 是否有无效输入
-input.validity.customError    // 是否有自定义错误
-```
-
 ### 4. 存储方案
 
 #### 4.1 Web Storage
@@ -148,11 +124,6 @@ input.validity.customError    // 是否有自定义错误
 - Service Worker 的缓存机制
 - 支持离线缓存和网络请求拦截
 - 更灵活的缓存策略控制
-
-#### 4.4 File System Access API（实验性）
-- 访问本地文件系统
-- 读取和写入文件
-- 需要用户授权
 
 ### 5. 图形和动画
 
@@ -258,18 +229,6 @@ observer.observe(target, {
 });
 ```
 
-#### 7.4 Performance Observer
-- 监听性能指标
-- 用于性能监控和分析
-```javascript
-const observer = new PerformanceObserver((list) => {
-  for (const entry of list.getEntries()) {
-    console.log('Performance entry:', entry);
-  }
-});
-observer.observe({ entryTypes: ['navigation', 'resource', 'paint'] });
-```
-
 ### 8. Web Components
 
 #### 8.1 Custom Elements
@@ -294,11 +253,6 @@ shadow.innerHTML = `
   <button>Shadow Button</button>
 `;
 ```
-
-#### 8.3 HTML Templates
-- `<template>` 标签存储可复用HTML
-- 配合 JavaScript 动态生成内容
-
 ### 9. 性能优化特性
 
 #### 9.1 Resource Hints
@@ -326,21 +280,6 @@ shadow.innerHTML = `
 
 <!-- iframe懒加载 -->
 <iframe src="video.html" loading="lazy"></iframe>
-```
-
-#### 9.3 响应式图片
-```html
-<!-- srcset 和 sizes -->
-<img srcset="small.jpg 480w, medium.jpg 768w, large.jpg 1200w"
-     sizes="(max-width: 600px) 480px, (max-width: 1200px) 768px, 1200px"
-     src="fallback.jpg" alt="描述">
-
-<!-- picture 元素 -->
-<picture>
-  <source media="(min-width: 800px)" srcset="large.jpg">
-  <source media="(min-width: 400px)" srcset="medium.jpg">
-  <img src="small.jpg" alt="描述">
-</picture>
 ```
 
 ### 10. 安全特性
@@ -526,17 +465,14 @@ navigator.getBattery().then(battery => {
 - Intersection Observer（视口观察）
 - Resize Observer（尺寸观察）
 - Mutation Observer（DOM变化）
-- Performance Observer（性能监控）
 
 #### 1.8 Web Components
 - Custom Elements（自定义元素）
 - Shadow DOM（样式隔离）
-- HTML Templates（模板）
 
 #### 1.9 性能优化
 - Resource Hints（preload, prefetch, preconnect, dns-prefetch）
 - 图片懒加载（loading="lazy"）
-- 响应式图片（srcset, sizes, picture）
 
 #### 1.10 其他API
 - 地理定位API
