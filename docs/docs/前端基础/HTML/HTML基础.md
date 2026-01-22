@@ -181,6 +181,474 @@ channel.onmessage = (e) => {
 - 双向通信通道
 - 用于 Web Workers 和 iframe 通信
 
+#### 6.5 通信API完整示例Demo
+
+##### WebSocket 示例（聊天应用）
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket 聊天示例</title>
+  <style>
+    #messages { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; }
+    #input { width: 70%; padding: 5px; }
+    button { padding: 5px 15px; }
+  </style>
+</head>
+<body>
+  <div id="messages"></div>
+  <input type="text" id="input" placeholder="输入消息...">
+  <button onclick="sendMessage()">发送</button>
+  <button onclick="connect()">连接</button>
+  <button onclick="disconnect()">断开</button>
+
+  <script>
+    let ws = null;
+
+    function connect() {
+      // 连接到 WebSocket 服务器（需要实际服务器地址）
+      ws = new WebSocket('wss://echo.websocket.org'); // 测试服务器
+
+      ws.onopen = () => {
+        addMessage('系统', '连接成功！', 'system');
+      };
+
+      ws.onmessage = (event) => {
+        addMessage('服务器', event.data, 'server');
+      };
+
+      ws.onerror = (error) => {
+        addMessage('系统', '连接错误', 'error');
+      };
+
+      ws.onclose = () => {
+        addMessage('系统', '连接已关闭', 'system');
+      };
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('input');
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(input.value);
+        addMessage('我', input.value, 'me');
+        input.value = '';
+      } else {
+        alert('请先连接服务器');
+      }
+    }
+
+    function disconnect() {
+      if (ws) {
+        ws.close();
+      }
+    }
+
+    function addMessage(from, message, type) {
+      const messages = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = `${from}: ${message}`;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // 页面加载时自动连接
+    window.onload = () => connect();
+  </script>
+</body>
+</html>
+```
+
+##### Server-Sent Events (SSE) 示例（实时通知）
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SSE 实时通知示例</title>
+  <style>
+    #notifications { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 10px; }
+    .notification { padding: 10px; margin: 5px 0; background: #f0f0f0; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>实时通知系统</h2>
+  <button onclick="startSSE()">开始接收通知</button>
+  <button onclick="stopSSE()">停止接收</button>
+  <div id="notifications"></div>
+
+  <script>
+    let eventSource = null;
+
+    function startSSE() {
+      // 连接到 SSE 服务器（需要实际服务器地址）
+      // 服务器需要设置 Content-Type: text/event-stream
+      eventSource = new EventSource('/api/notifications');
+
+      eventSource.onmessage = (event) => {
+        addNotification('消息', event.data);
+      };
+
+      // 监听自定义事件
+      eventSource.addEventListener('customEvent', (event) => {
+        addNotification('自定义事件', event.data);
+      });
+
+      eventSource.onerror = (error) => {
+        console.error('SSE 错误:', error);
+        addNotification('错误', '连接失败');
+      };
+
+      eventSource.onopen = () => {
+        addNotification('系统', '连接成功');
+      };
+    }
+
+    function stopSSE() {
+      if (eventSource) {
+        eventSource.close();
+        addNotification('系统', '已停止接收');
+      }
+    }
+
+    function addNotification(type, message) {
+      const notifications = document.getElementById('notifications');
+      const div = document.createElement('div');
+      div.className = 'notification';
+      div.innerHTML = `<strong>${type}:</strong> ${message} <small>${new Date().toLocaleTimeString()}</small>`;
+      notifications.appendChild(div);
+      notifications.scrollTop = notifications.scrollHeight;
+    }
+  </script>
+</body>
+</html>
+```
+
+##### Broadcast Channel API 示例（跨标签页通信）
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Broadcast Channel 跨标签页通信</title>
+  <style>
+    body { padding: 20px; font-family: Arial; }
+    #messages { border: 1px solid #ccc; height: 200px; overflow-y: auto; padding: 10px; margin: 10px 0; }
+    input { width: 70%; padding: 5px; }
+    button { padding: 5px 15px; margin: 5px; }
+    .tip { color: #666; font-size: 12px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>跨标签页通信示例</h2>
+  <p class="tip">💡 提示：打开多个标签页，在一个标签页发送消息，其他标签页会收到</p>
+  
+  <div id="messages"></div>
+  <input type="text" id="input" placeholder="输入消息...">
+  <button onclick="sendMessage()">发送消息</button>
+  <button onclick="openNewTab()">打开新标签页</button>
+
+  <script>
+    // 创建 Broadcast Channel
+    const channel = new BroadcastChannel('my-channel');
+    const tabId = Math.random().toString(36).substr(2, 9);
+
+    // 接收消息
+    channel.onmessage = (event) => {
+      addMessage(`标签页 ${event.data.tabId}`, event.data.message, 'received');
+    };
+
+    // 发送消息
+    function sendMessage() {
+      const input = document.getElementById('input');
+      const message = input.value.trim();
+      
+      if (message) {
+        channel.postMessage({
+          tabId: tabId,
+          message: message,
+          timestamp: new Date().toLocaleTimeString()
+        });
+        addMessage(`我 (${tabId})`, message, 'sent');
+        input.value = '';
+      }
+    }
+
+    // 添加消息到界面
+    function addMessage(from, message, type) {
+      const messages = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.style.padding = '5px';
+      div.style.margin = '5px 0';
+      div.style.backgroundColor = type === 'sent' ? '#e3f2fd' : '#f1f8e9';
+      div.style.borderRadius = '4px';
+      div.innerHTML = `<strong>${from}:</strong> ${message}`;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // 打开新标签页
+    function openNewTab() {
+      window.open(window.location.href, '_blank');
+    }
+
+    // 页面加载时显示当前标签页ID
+    window.onload = () => {
+      addMessage('系统', `当前标签页ID: ${tabId}`, 'system');
+    };
+
+    // 页面关闭时清理
+    window.onbeforeunload = () => {
+      channel.close();
+    };
+  </script>
+</body>
+</html>
+```
+
+##### MessageChannel API 示例（主线程与 Worker 通信）
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MessageChannel API 示例</title>
+  <style>
+    body { padding: 20px; font-family: Arial; }
+    #result { border: 1px solid #ccc; padding: 10px; margin: 10px 0; min-height: 100px; }
+    button { padding: 5px 15px; margin: 5px; }
+  </style>
+</head>
+<body>
+  <h2>MessageChannel 双向通信示例</h2>
+  <p>主线程与 Web Worker 之间的双向通信</p>
+  
+  <button onclick="startWorker()">启动 Worker</button>
+  <button onclick="sendToWorker()">发送消息给 Worker</button>
+  <button onclick="stopWorker()">停止 Worker</button>
+  <div id="result"></div>
+
+  <script>
+    let worker = null;
+    let messageChannel = null;
+
+    function startWorker() {
+      if (worker) {
+        addResult('Worker 已启动');
+        return;
+      }
+
+      // 创建 MessageChannel
+      messageChannel = new MessageChannel();
+
+      // 创建 Worker
+      const workerCode = `
+        // Worker 端代码
+        let port = null;
+
+        self.onmessage = function(e) {
+          if (e.data.type === 'init') {
+            // 接收端口
+            port = e.data.port;
+            
+            // 监听来自主线程的消息
+            port.onmessage = function(event) {
+              console.log('Worker 收到:', event.data);
+              
+              // 处理消息并回复
+              const result = event.data * 2;
+              port.postMessage(\`计算结果: \${event.data} × 2 = \${result}\`);
+            };
+            
+            // 发送初始化完成消息
+            port.postMessage('Worker 已就绪，可以开始计算');
+          }
+        };
+      `;
+
+      const blob = new Blob([workerCode], { type: 'application/javascript' });
+      worker = new Worker(URL.createObjectURL(blob));
+
+      // 将端口1发送给 Worker
+      worker.postMessage({ type: 'init', port: messageChannel.port2 }, [messageChannel.port2]);
+
+      // 在主线程监听端口1
+      messageChannel.port1.onmessage = (event) => {
+        addResult(`Worker 回复: ${event.data}`);
+      };
+
+      // 启动端口
+      messageChannel.port1.start();
+
+      addResult('Worker 已启动，MessageChannel 已建立');
+    }
+
+    function sendToWorker() {
+      if (!messageChannel || !worker) {
+        alert('请先启动 Worker');
+        return;
+      }
+
+      const number = Math.floor(Math.random() * 100);
+      messageChannel.port1.postMessage(number);
+      addResult(`主线程发送: ${number}`);
+    }
+
+    function stopWorker() {
+      if (worker) {
+        worker.terminate();
+        worker = null;
+        messageChannel = null;
+        addResult('Worker 已停止');
+      }
+    }
+
+    function addResult(message) {
+      const result = document.getElementById('result');
+      const div = document.createElement('div');
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      result.appendChild(div);
+    }
+  </script>
+</body>
+</html>
+```
+
+##### 综合示例：多种通信方式对比
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>通信API综合示例</title>
+  <style>
+    body { padding: 20px; font-family: Arial; }
+    .demo-section { border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 5px; }
+    .demo-section h3 { margin-top: 0; color: #333; }
+    #broadcast-messages, #channel-messages { 
+      border: 1px solid #ccc; 
+      height: 150px; 
+      overflow-y: auto; 
+      padding: 10px; 
+      margin: 10px 0; 
+      background: #f9f9f9; 
+    }
+    input { width: 60%; padding: 5px; margin: 5px; }
+    button { padding: 5px 15px; margin: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>HTML5 通信API 综合示例</h1>
+
+  <!-- Broadcast Channel 示例 -->
+  <div class="demo-section">
+    <h3>1. Broadcast Channel API（跨标签页通信）</h3>
+    <p>打开多个标签页测试跨标签页通信</p>
+    <input type="text" id="broadcast-input" placeholder="输入消息...">
+    <button onclick="broadcastSend()">发送</button>
+    <button onclick="openNewTab()">打开新标签页</button>
+    <div id="broadcast-messages"></div>
+  </div>
+
+  <!-- MessageChannel 示例 -->
+  <div class="demo-section">
+    <h3>2. MessageChannel API（主线程通信）</h3>
+    <p>在同一页面内创建两个 MessageChannel 端口进行通信</p>
+    <input type="text" id="channel-input" placeholder="输入消息...">
+    <button onclick="channelSend()">发送</button>
+    <button onclick="initChannel()">初始化 Channel</button>
+    <div id="channel-messages"></div>
+  </div>
+
+  <script>
+    // ========== Broadcast Channel ==========
+    const broadcastChannel = new BroadcastChannel('demo-channel');
+    const tabId = `Tab-${Math.random().toString(36).substr(2, 5)}`;
+
+    broadcastChannel.onmessage = (event) => {
+      addBroadcastMessage(`收到来自 ${event.data.tabId}: ${event.data.message}`);
+    };
+
+    function broadcastSend() {
+      const input = document.getElementById('broadcast-input');
+      const message = input.value.trim();
+      if (message) {
+        broadcastChannel.postMessage({
+          tabId: tabId,
+          message: message,
+          time: new Date().toLocaleTimeString()
+        });
+        addBroadcastMessage(`我 (${tabId}) 发送: ${message}`);
+        input.value = '';
+      }
+    }
+
+    function addBroadcastMessage(msg) {
+      const div = document.createElement('div');
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      document.getElementById('broadcast-messages').appendChild(div);
+    }
+
+    function openNewTab() {
+      window.open(window.location.href, '_blank');
+    }
+
+    // ========== MessageChannel ==========
+    let channelPort1 = null;
+    let channelPort2 = null;
+
+    function initChannel() {
+      const channel = new MessageChannel();
+      channelPort1 = channel.port1;
+      channelPort2 = channel.port2;
+
+      // 端口1监听消息
+      channelPort1.onmessage = (event) => {
+        addChannelMessage(`端口1收到: ${event.data}`);
+      };
+
+      // 端口2监听消息
+      channelPort2.onmessage = (event) => {
+        addChannelMessage(`端口2收到: ${event.data}`);
+        // 自动回复
+        setTimeout(() => {
+          channelPort2.postMessage(`回复: ${event.data}`);
+        }, 500);
+      };
+
+      // 启动端口
+      channelPort1.start();
+      channelPort2.start();
+
+      addChannelMessage('MessageChannel 已初始化');
+    }
+
+    function channelSend() {
+      if (!channelPort1) {
+        alert('请先初始化 Channel');
+        return;
+      }
+
+      const input = document.getElementById('channel-input');
+      const message = input.value.trim();
+      if (message) {
+        channelPort1.postMessage(message);
+        addChannelMessage(`发送: ${message}`);
+        input.value = '';
+      }
+    }
+
+    function addChannelMessage(msg) {
+      const div = document.createElement('div');
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      document.getElementById('channel-messages').appendChild(div);
+    }
+
+    // 初始化
+    window.onload = () => {
+      addBroadcastMessage(`当前标签页: ${tabId}`);
+    };
+  </script>
+</body>
+</html>
+```
+
 ### 7. 观察者API（Observer APIs）
 
 #### 7.1 Intersection Observer
