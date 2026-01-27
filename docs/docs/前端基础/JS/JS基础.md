@@ -1,35 +1,31 @@
-# js
+# JavaScript 基础核心知识
 
-## 变量和类型
+## 一、数据类型系统
 
-- Undefined
-- Null
+### 1.1 基本数据类型（Primitive Types）
 
-- Boolean
+JavaScript 有 7 种基本数据类型：
 
-- String
+| 类型          | 说明             | 示例                               | 特点                   |
+| ------------- | ---------------- | ---------------------------------- | ---------------------- |
+| **Undefined** | 未定义           | `undefined`                        | 只有一个值 `undefined` |
+| **Null**      | 空值             | `null`                             | 只有一个值 `null`      |
+| **Boolean**   | 布尔值           | `true` / `false`                   | 两个值                 |
+| **String**    | 字符串           | `'hello'` / `"world"`              | 不可变                 |
+| **Number**    | 数字             | `42` / `3.14` / `NaN` / `Infinity` | 64位浮点数             |
+| **Symbol**    | 符号（ES6）      | `Symbol('key')`                    | 唯一值，不可枚举       |
+| **BigInt**    | 大整数（ES2020） | `9007199254740991n`                | 任意精度整数           |
 
-- Number
+#### Symbol 详解
 
-- Symbol（es6引入，为了防止属性名冲突：独一无二的值，应用：定义常量，消除魔法字符串）
+**特点**：
+- 唯一性：每个 Symbol 值都是唯一的
+- 不可枚举：`Object.keys()` 和 `for...in` 无法遍历
+- 不可转换：不能转换为字符串或数字
 
-- Object（是引用数据类型，访问时访问的是引用，function和Array是子类型）
-
-- Bigint：（用来表示任意精度整数的基本数据类型，使用BigInt可以安全的存储和操作任意大小的整数而不受Number类型的安全值范围的限制。用于表示大于 2^53 - 1（Number.MAX_SAFE_INTEGER）的整数。）
-## 数据类型的底层数据结构
-
-答：基本数据类型的变量是按`值`存储在栈中的，引用数据类型按`地址指针`栈中，数据存储在堆中，当我们想要访问引用类型的值的时候，需要先从栈中获得对象的地址指针，然后，在通过地址指针找到堆中的所需要的数据
-堆是一种特殊的树形数据结构，一般讨论的堆都是二叉堆。堆的特点是根结点的值是所有结点中最小的或者最大的，并且根结点的两个子树也是一个堆结构：
-栈是一种特殊的线性表，它只能在一个表的一个固定端进行数据结点的插入和删除操作。栈按照后进先出的原则来存储数据，也就是说，先插入的数据将被压入栈底，最后插入的数据在栈顶，读出数据时，从栈顶开始逐个读出。栈在汇编语言程序中，经常用于重要数据的现场保护。栈中没有数据时，称为空栈。先进后出， 后进先出。
-JavaScript基本类型数据都是直接按`值`存储在栈中的(Undefined、Null、不是new出来的布尔、数字和字符串)，每种类型的数据占用的内存空间的大小是确定的，并由系统自动分配和自动释放。这样带来的好处就是，内存可以及时得到回收，相对于堆来说 ，更加容易管理内存空间。
-
-JavaScript引用类型数据被存储于堆中 (如对象、数组、函数等，它们是通过拷贝和new出来的）。其实，说存储于堆中，也不太准确，因为，引用类型的数据的地址指针是存储于栈中的，`当我们想要访问引用类型的值的时候，需要先从栈中获得对象的地址指针，然后，在通过地址指针找到堆中的所需要的数据`。
-
-
-## Symbol类型在实际开发中的应用、可手动实现一个简单的Symbol
-
-答：一个简单的应用是创建一个不可枚举的私有属性：
-```js
+**应用场景**：
+```javascript
+// 1. 定义私有属性
 const privateData = Symbol('privateData');
 
 class MyClass {
@@ -44,235 +40,947 @@ class MyClass {
 
 const instance = new MyClass();
 console.log(instance.getPrivateData()); // "This is private"
-console.log(Object.keys(instance)); // []
-let mySymbol = Symbol('key');
-// 第一种写法
-let a = {};
-a[mySymbol] = 'Hello!';
-// 第二种写法
-let a = {
-  [mySymbol]: 'Hello!'
+console.log(Object.keys(instance));     // []（不可枚举）
+
+// 2. 消除魔法字符串
+const TYPE_A = Symbol('typeA');
+const TYPE_B = Symbol('typeB');
+
+function handleType(type) {
+  switch(type) {
+    case TYPE_A: return '处理类型A';
+    case TYPE_B: return '处理类型B';
+  }
+}
+
+// 3. 定义对象属性
+const obj = {
+  [Symbol('key')]: 'value'
 };
 ```
 
-## 基本类型对应的内置对象，以及他们之间的装箱拆箱操作 - String(), Number(), Boolean()
+#### BigInt 详解
 
-### 隐式装箱
-``` js
-let a = 'sun'
-let b = a.indexof('s') // 0 // 返回下标
-// 上面代码在后台实际的步骤为：
-// 创建String类型的一个实例；
-let a = new String('sun')
-// 在实例上调用指定的方法；
-let b = a.indexof('s')
-// 销毁这个实例；
-a = null
+**特点**：
+- 表示任意精度整数，不受 `Number.MAX_SAFE_INTEGER` 限制
+- 不能与 Number 类型直接运算，需要先转换
+- 使用 `n` 后缀或 `BigInt()` 构造函数创建
+
+**应用场景**：
+```javascript
+// 大整数运算
+const bigNum = 9007199254740991n;
+const anotherBig = BigInt('9007199254740992');
+
+console.log(bigNum + anotherBig); // 18014398509481983n
+
+// 与 Number 转换
+const num = Number(bigNum);
+const big = BigInt(num);
+
+// 最大安全整数
+console.log(Number.MAX_SAFE_INTEGER); // 9007199254740991
+console.log(Number.MAX_VALUE);         // 1.7976931348623157e+308
 ```
 
-### 拆箱：
+### 1.2 引用数据类型（Reference Types）
 
-拆箱操作中主要有两个方法，`valueOf()`方法和`toString()`方法。这两个方法主要用来检测你返回的是不是一个基本类型的值。一般是先用valueOf()来检测，如果返回的不是一个基本类型的值，是对象自身，则会继续用toString()来检测，如果检测结果不是一个基本类型的值，则会报错(Uncaught SyntaxError: Invalid or unexpected token)
+| 类型         | 说明          | 特点               |
+| ------------ | ------------- | ------------------ |
+| **Object**   | 对象          | 所有引用类型的基类 |
+| **Array**    | 数组          | Object 的子类型    |
+| **Function** | 函数          | Object 的子类型    |
+| **Date**     | 日期          | Object 的子类型    |
+| **RegExp**   | 正则          | Object 的子类型    |
+| **Map**      | 映射（ES6）   | 键值对集合         |
+| **Set**      | 集合（ES6）   | 值唯一集合         |
+| **WeakMap**  | 弱映射（ES6） | 键必须是对象       |
+| **WeakSet**  | 弱集合（ES6） | 值必须是对象       |
 
-#### valueOf()
+### 1.3 数据存储机制
 
-- valueOf() 方法返回指定对象的原始值。
-- JavaScript调用valueOf方法将对象转换为原始值。你很少需要自己调用valueOf方法；当遇到要预期的原始值的对象时，JavaScript会自动调用它。
-- 默认情况下，valueOf方法由Object后面的每个对象继承。 每个内置的核心对象都会覆盖此方法以返回适当的值。如果对象没有原始值，则valueOf将返回对象本身。
-- JavaScript的许多内置对象都重写了该函数，以实现更适合自身的功能需要。因此，不同类型对象的valueOf()方法的返回值和返回值类型均可能不同
-#### toString()
-- toString() 方法返回一个表示该对象的字符串。
-- 每个对象都有一个 toString() 方法，当该对象被表示为一个文本值时，或者一个对象以预期的字符串方式引用时自动调用。
-- 默认情况下，toString() 方法被每个 Object 对象继承。如果此方法在自定义对象中未被覆盖，toString() 返回 “[object type]”，其中 type 是对象的类型。
-``` js
-例子：
-    let name = new String('sun')
-    let age = new Number(24)
-    console.log(typeof name) // object
-    console.log(typeof age) //  object
-    // 拆箱操作
-    console.log(typeof age.valueOf()); // number // 24  基本的数字类型
-    console.log(typeof name.valueOf()); // string  // 'sun' 基本的字符类型
-    console.log(typeof age.toString()); // string  // '24' 基本的字符类型
-    console.log(typeof name.toString()); // string  // 'sun' 基本的字符类型
+#### 栈（Stack）和堆（Heap）
+
+**基本类型存储**：
+- 存储在**栈内存**中
+- 按值访问
+- 大小固定，系统自动分配和释放
+
+**引用类型存储**：
+- 数据存储在**堆内存**中
+- 栈中存储**地址指针**
+- 按引用访问，通过指针找到堆中的数据
+
+**内存模型**：
 ```
-## 理解值类型和引用类型
-
-JavaScript中的变量分为基本类型和引用类型:
-- 基本类型: 保存在栈内存中的简单数据段，它们的值都有固定的大小，保存在栈空间，通过按值访问
-
-- 引用类型: 保存在堆内存中的对象，值大小不固定，栈内存中存放的该对象的访问地址指向堆内存中的对象，JavaScript 不允许直接访问堆内存中的位置，因此操作对象时，实际操作对象的引用
-
-
-## 至少可以说出三种判断JavaScript数据类型的方式，以及他们的优缺点，如何准确的判断数组类型
-
-- typeof：判断不出null和数组 ，日期，正则这些内置对象的具体类型：都会显示object
-有些时候，typeof 操作符会返回一些令人迷惑但技术上却正确的值：
-对于基本类型，除 null 以外，均可以返回正确的结果。
-对于引用类型，除 function 以外，一律返回 object 类型。
-对于 null ，返回 object 类型。
-对于 function 返回  function 类型。
-其中，null 有属于自己的数据类型 Null ， 引用类型中的 数组、日期、正则 也都有属于自己的具体类型，而 typeof 对于这些类型的处理，只返回了处于其原型链最顶端的 Object 类型，没有错，但不是我们想要的结果。
-
-```js
-typeof'';// string 有效
-typeof1;// number 有效
-typeofSymbol();// symbol 有效
-typeoftrue;//boolean 有效
-typeofundefined;//undefined 有效
-typeofnull;//object 无效
-typeof[] ;//object 无效
-typeofnewFunction();// function 有效
-typeofnewDate();//object 无效
-typeofnewRegExp();//object 无效 
+栈内存（Stack）          堆内存（Heap）
+┌─────────────┐         ┌─────────────┐
+│ a = 10      │         │             │
+│ b = 'hello' │         │  {name:...} │
+│ obj = 0x001 │ ──────→ │  [1,2,3]    │
+│ arr = 0x002 │ ──────→ │  function   │
+└─────────────┘         └─────────────┘
 ```
-- instanceof：
-  - instanceof 只能用来判断两个对象是否属于实例关系， 而不能判断一个对象实例具体属于哪种类型。
 
-  - null 和 undefined 是无效的对象，因此是不会有 constructor 存在的，这两种类型的数据需要通过其他方式来判断。
+**示例**：
+```javascript
+// 基本类型：值拷贝
+let a = 10;
+let b = a;
+b = 20;
+console.log(a); // 10（a 不变）
 
-  - 函数的 constructor 是不稳定的，这个主要体现在自定义对象上，当开发者重写 prototype 后，原有的 constructor 引用会丢失，constructor 会默认为 Object
-  - constructor：返回对象对应的构造函数
-- Array.isArray
-- tostring：
-``` js
-Object.prototype.toString.call('') ;  // [object String]
-Object.prototype.toString.call(1) ;   // [object Number]
-Object.prototype.toString.call(true) ;// [object Boolean]
-Object.prototype.toString.call(Symbol());//[object Symbol]
-Object.prototype.toString.call(undefined) ;// [object Undefined]
-Object.prototype.toString.call(null) ;// [object Null]
-Object.prototype.toString.call(newFunction()) ;// [object Function]
-Object.prototype.toString.call(newDate()) ;// [object Date]
-Object.prototype.toString.call([]) ;// [object Array]
-Object.prototype.toString.call(newRegExp()) ;// [object RegExp]
-Object.prototype.toString.call(newError()) ;// [object Error]
-Object.prototype.toString.call(document) ;// [object HTMLDocument]
-Object.prototype.toString.call(window) ;//[object global] window 是全局对象 global 的引用
+// 引用类型：引用拷贝
+let obj1 = { name: 'Alice' };
+let obj2 = obj1;
+obj2.name = 'Bob';
+console.log(obj1.name); // 'Bob'（obj1 也变了）
 ```
-## 可能发生隐式类型转换的场景以及转换原则，应如何避免或巧妙应用
 
-if做判断时 会隐式转换
-## 出现小数精度丢失的原因，JavaScript可以存储的最大数字、最大安全数字，JavaScript处理大数字的方法、避免精度丢失的方法
+### 1.4 装箱和拆箱
 
-答：精度丢失原因，说是 JavaScript 使用了 IEEE 754 规范，二进制储存十进制的小数时不能完整的表示小数
-能够表示的最大数字 Number.MAX_VALUE 等于 1.7976931348623157e+308 ,最大安全数字 Number.MAX_SAFE_INTEGER 等于 9007199254740991
-`先变成整数，在运算，或者使用提案的新数据类型 bigint`
-## 原型和原型链
+#### 装箱（Boxing）
 
-1.理解原型设计模式以及JavaScript中的原型规则
-- A. 所有的引用类型（数组、对象、函数），都具有对象特性，即可自由扩展属性；
-- B. 所有的引用类型（数组、对象、函数），都有一个`__proto__`属性（隐式原型），属性值是一个普通的对象；
-- C. 所有的函数，都具有一个 `prototype`（显式原型），属性值也是一个普通对象；
-- D. 所有的引用类型（数组、对象、函数），其隐式原型指向其构造函数的显式原型；`（obj._proto_ === Object.prototype）`；
-- E. 当试图得到一个对象的某个属性时，如果这个对象本身没有这个属性，那么会去它的 `__proto__` （即它的构造函数的 `prototype`）中去寻找；
-## instanceof的底层实现原理
-- 手动实现一个instanceof：`就是看实例对象的隐式原型是否全等于构造函数的显示原型`
-``` js
-function instanceOf(obj, object) {//obj 表示实例对象，object 表示对象
-  var O = object.prototype;
-  obj = obj.__proto__;
-  while (true) { 
-      if (obj === null) 
-          return false; 
-      if (O === obj) // 这里重点：当 O 严格等于 obj 时，返回 true 
-          return true; 
-      obj = obj.__proto__; // 继续向上查找原型
-  } 
+**隐式装箱**：基本类型调用方法时，自动转换为包装对象
+```javascript
+let str = 'hello';
+let result = str.indexOf('h'); // 0
+
+// 后台实际执行：
+// 1. 创建 String 包装对象
+let temp = new String('hello');
+// 2. 调用方法
+let result = temp.indexOf('h');
+// 3. 销毁临时对象
+temp = null;
+```
+
+**显式装箱**：
+```javascript
+let num = new Number(42);
+let str = new String('hello');
+let bool = new Boolean(true);
+```
+
+#### 拆箱（Unboxing）
+
+**转换规则**：
+1. 优先调用 `valueOf()`
+2. 如果返回非原始值，再调用 `toString()`
+3. 如果仍是非原始值，报错
+
+```javascript
+let numObj = new Number(42);
+console.log(typeof numObj);           // 'object'
+console.log(typeof numObj.valueOf());  // 'number'（拆箱）
+console.log(typeof numObj.toString()); // 'string'
+
+// 对象转原始值
+let obj = {
+  valueOf() { return 100; },
+  toString() { return 'object'; }
+};
+
+console.log(obj + 1);      // 101（优先 valueOf）
+console.log(String(obj));  // 'object'（优先 toString）
+```
+
+---
+
+## 二、类型判断
+
+### 2.1 typeof 操作符
+
+**语法**：`typeof operand`
+
+**返回值**：
+| 类型        | 返回值        | 说明               |
+| ----------- | ------------- | ------------------ |
+| `undefined` | `'undefined'` | ✅ 正确             |
+| `null`      | `'object'`    | ❌ 历史遗留问题     |
+| `boolean`   | `'boolean'`   | ✅ 正确             |
+| `number`    | `'number'`    | ✅ 正确             |
+| `string`    | `'string'`    | ✅ 正确             |
+| `symbol`    | `'symbol'`    | ✅ 正确             |
+| `bigint`    | `'bigint'`    | ✅ 正确             |
+| `function`  | `'function'`  | ✅ 正确             |
+| 其他对象    | `'object'`    | ⚠️ 无法区分具体类型 |
+
+**示例**：
+```javascript
+typeof undefined;        // 'undefined'
+typeof null;            // 'object'（注意：这是 bug）
+typeof true;            // 'boolean'
+typeof 42;              // 'number'
+typeof 'hello';         // 'string'
+typeof Symbol('key');    // 'symbol'
+typeof 9007199254740991n; // 'bigint'
+typeof function(){};    // 'function'
+typeof [];              // 'object'
+typeof {};              // 'object'
+typeof new Date();      // 'object'
+```
+
+**局限性**：
+- 无法区分 `null` 和对象
+- 无法区分数组、日期、正则等具体对象类型
+
+### 2.2 instanceof 操作符
+
+**语法**：`object instanceof constructor`
+
+**原理**：检查构造函数的 `prototype` 是否出现在对象的原型链上
+
+**示例**：
+```javascript
+[] instanceof Array;           // true
+[] instanceof Object;          // true（Array 继承自 Object）
+{} instanceof Object;           // true
+new Date() instanceof Date;     // true
+new Date() instanceof Object;   // true
+
+// 基本类型无法使用
+'hello' instanceof String;      // false（基本类型）
+new String('hello') instanceof String; // true（包装对象）
+```
+
+**局限性**：
+- 无法判断基本类型
+- 跨框架/iframe 时可能失效
+- 原型链可能被修改
+
+### 2.3 Object.prototype.toString()
+
+**语法**：`Object.prototype.toString.call(value)`
+
+**返回值**：`[object Type]` 格式的字符串
+
+**示例**：
+```javascript
+Object.prototype.toString.call('');           // '[object String]'
+Object.prototype.toString.call(1);            // '[object Number]'
+Object.prototype.toString.call(true);         // '[object Boolean]'
+Object.prototype.toString.call(Symbol());     // '[object Symbol]'
+Object.prototype.toString.call(9007199254740991n); // '[object BigInt]'
+Object.prototype.toString.call(undefined);    // '[object Undefined]'
+Object.prototype.toString.call(null);         // '[object Null]'
+Object.prototype.toString.call([]);           // '[object Array]'
+Object.prototype.toString.call({});           // '[object Object]'
+Object.prototype.toString.call(new Date());   // '[object Date]'
+Object.prototype.toString.call(/regex/);      // '[object RegExp]'
+Object.prototype.toString.call(function(){}); // '[object Function]'
+```
+
+**封装通用类型判断函数**：
+```javascript
+function getType(value) {
+  return Object.prototype.toString.call(value)
+    .slice(8, -1)
+    .toLowerCase();
 }
+
+getType([]);        // 'array'
+getType({});        // 'object'
+getType(null);      // 'null'
+getType(undefined); // 'undefined'
 ```
-## 实现继承的几种方式以及他们的优缺点
 
-## 理解es6 class构造以及继承的底层实现原理
+### 2.4 Array.isArray()
 
+**语法**：`Array.isArray(value)`
 
+**用途**：专门判断是否为数组
 
+**示例**：
+```javascript
+Array.isArray([]);           // true
+Array.isArray({});           // false
+Array.isArray('array');      // false
+Array.isArray(null);         // false
+```
 
+### 2.5 类型判断方法对比
 
-## 如何处理循环的异步操作
+| 方法                        | 优点           | 缺点                     | 适用场景     |
+| --------------------------- | -------------- | ------------------------ | ------------ |
+| `typeof`                    | 简单快速       | 无法区分对象类型         | 基本类型判断 |
+| `instanceof`                | 可判断继承关系 | 跨框架失效、原型链可修改 | 对象类型判断 |
+| `Object.prototype.toString` | 最准确         | 语法稍复杂               | 精确类型判断 |
+| `Array.isArray`             | 专门判断数组   | 仅限数组                 | 数组判断     |
+| `constructor`               | 可获取构造函数 | 不稳定（可被修改）       | 不推荐使用   |
 
-- 将异步操作变同步，使用 async/await.
-- 去掉循环，将循环变成递归
+**最佳实践**：
+```javascript
+// 通用类型判断函数
+function typeOf(value) {
+  if (value === null) return 'null';
+  if (typeof value === 'object') {
+    return Object.prototype.toString.call(value)
+      .slice(8, -1)
+      .toLowerCase();
+  }
+  return typeof value;
+}
 
-- callback (回调函数)
-  - 回调函数代表着，当某个任务处理完，然后需要做的事。比如读取文件，连接数据库，等文件准备好，或数据库连接成功执行编写的回调函数，又比如像一些动画处理，当动画走完，然后执行回调。
+// 使用
+typeOf([]);        // 'array'
+typeOf({});        // 'object'
+typeOf(null);      // 'null'
+typeOf(undefined); // 'undefined'
+typeOf(42);        // 'number'
+```
 
-- 发布订阅模式
-  - 顾名思义，便是先订阅了事件，有人一发布事件你就知道了，接着执行后面的操作。
+---
 
-- Promise
-  - Promise，简单说就是一个容器，里面保存着某个未来才会结束的事件的结果，相比回调函数，Promise 提供统一的 API，各种异步操作都可以用同样的方法进行处理。
+## 三、类型转换
 
-- Generator (生成器)函数
-  - Generator 函数是 ES6 提供的一种异步编程解决方案，其行为类似于状态机。
+### 3.1 隐式类型转换
 
-- async/await
-  - async/await 本质上还是基于 Generator 函数，可以说是 Generator 函数的语法糖，async 就相当于之前写的run函数(执行Generator函数的函数),而 await 就相当于 yield ，只不过 await 表达式后面只能跟着 Promise 对象，如果不是 Promise 对象的话，会通过 Promise.resolve 方法使之变成 Promise 对象。async 修饰 function,其返回一个 Promise 对象。
+#### 触发场景
 
-## export default 和 export 有什么区别
-export 、export default，都属于ES6里面的语法
+**1. 算术运算**：
+```javascript
+'5' - 2;    // 3（字符串转数字）
+'5' + 2;    // '52'（数字转字符串，+ 优先字符串拼接）
+'5' * '2';  // 10（字符串转数字）
+```
 
-1. export与export default均可用于导出常量、函数、文件、模块等
+**2. 比较运算**：
+```javascript
+'5' == 5;   // true（类型转换后比较）
+'5' === 5;  // false（严格相等，不转换）
+null == undefined; // true（特殊规则）
+```
 
-2. 你可以在其它文件或模块中通过import+(常量 | 函数 | 文件 | 模块)名的方式，将其导入，以便能够对其进行使用
+**3. 逻辑运算**：
+```javascript
+if ('hello') { }  // 字符串转布尔值
+if (0) { }        // 数字转布尔值
+if (null) { }     // null 转布尔值
+```
 
-3. 在一个文件或模块中，export、import可以有多个，export default仅有一个
+**4. 对象转原始值**：
+```javascript
+let obj = {
+  valueOf() { return 1; },
+  toString() { return '2'; }
+};
 
-export default 用于规定模块的默认对外接口，只能有一个，所以 export default 在同一个模块中只能出现一次。
+obj + 1;        // 2（优先 valueOf）
+String(obj);    // '2'（优先 toString）
+```
 
-4. 通过export方式导出，在导入时要加{ }，export default则不需要，因为它本身只能有一个
+#### 转换规则
 
-export default的import方式之所以不需要使用大括号包裹。因为对于export default 其输出的本来就只有一个接口，提供的是模块的默认接口，自然不需要使用大括号包裹。
+**ToNumber（转数字）**：
+```javascript
+Number('123');     // 123
+Number('123abc');  // NaN
+Number('');        // 0
+Number(true);      // 1
+Number(false);     // 0
+Number(null);      // 0
+Number(undefined); // NaN
+Number([]);        // 0（空数组）
+Number([1]);       // 1（单元素数组）
+Number([1,2]);     // NaN（多元素数组）
+```
 
-5、 export 可以直接导出或者先定义后导出都可以，export default只能先定义后导出
+**ToString（转字符串）**：
+```javascript
+String(123);       // '123'
+String(true);      // 'true'
+String(null);      // 'null'
+String(undefined); // 'undefined'
+String([]);        // ''（空数组）
+String([1,2]);     // '1,2'（数组元素用逗号连接）
+String({});        // '[object Object]'
+```
 
-## 数组常用的方法
-join(separator):将数组的元素组起一个字符串，以separator为分隔符，省略的话则用默认用逗号为分隔符
+**ToBoolean（转布尔值）**：
+```javascript
+// 假值（Falsy）：转换为 false
+Boolean(false);    // false
+Boolean(0);        // false
+Boolean(-0);      // false
+Boolean(NaN);     // false
+Boolean('');      // false
+Boolean(null);     // false
+Boolean(undefined); // false
 
-push()：将参数添加到原数组末尾，并返回数组的长度(修改原数组)
+// 真值（Truthy）：转换为 true
+Boolean(true);     // true
+Boolean(1);        // true
+Boolean('hello');  // true
+Boolean([]);       // true（注意：空数组也是 true）
+Boolean({});       // true（注意：空对象也是 true）
+```
 
-pop()：删除原数组最后一项，并返回删除元素的值；如果数组为空则返回undefined（修改原数组）
+### 3.2 显式类型转换
 
-shift()：删除原数组第一项，并返回删除元素的值；如果数组为空则返回undefined
+#### Number() / parseInt() / parseFloat()
 
-unshift()： 将参数添加到原数组开头，并返回数组的长度（修改原数组）
+```javascript
+// Number：整体转换
+Number('123');     // 123
+Number('123abc');  // NaN
 
-slice(start,end):可以截取出数组某部份的元素为一个新的数组，有两个必填的参数，第一个是起始位置，第二个是结束位置( 操作时数字减1 ) 原数组不改变
+// parseInt：解析整数
+parseInt('123');      // 123
+parseInt('123abc');   // 123（解析到非数字字符停止）
+parseInt('abc123');   // NaN
+parseInt('10', 2);    // 2（二进制转十进制）
 
-splice(start,deleteCount,val1,val2,…):从start位置开始删除deleteCount项，并从该位置起插入。（修改原数组）
+// parseFloat：解析浮点数
+parseFloat('3.14');   // 3.14
+parseFloat('3.14abc'); // 3.14
+```
 
-fill()：使用特定值填充数组中的一个或多个元素(修改原数组)
+#### String() / toString()
 
-filter()：过滤,数组中的每一项运行给定函数，返回满足过滤条件组成的数组
+```javascript
+String(123);        // '123'
+(123).toString();   // '123'
+(123).toString(2);  // '1111011'（转二进制）
 
-concat()：可以将两个数组合并在一起，如果是使用ES6语法也可以用扩展运算符…来代替
+// 注意：null 和 undefined 没有 toString 方法
+String(null);       // 'null'
+String(undefined);  // 'undefined'
+```
 
-indexOf()：返回当前值在数组中第一次出现位置的索引
+#### Boolean()
 
-lastIndexOf()：返回查找的字符串最后出现的位置，如果没有找到匹配字符串则返回 -1。
+```javascript
+Boolean(0);         // false
+Boolean(1);         // true
+Boolean('');        // false
+Boolean('hello');   // true
+```
 
-every()：判断数组中每一项是否都符合条件
+### 3.3 避免隐式转换
 
-some()：判断数组中是否存在满足的项
+**使用严格相等**：
+```javascript
+// ❌ 不推荐
+if (value == 0) { }
 
-includes()：判断一个数组是否包含指定的值
+// ✅ 推荐
+if (value === 0) { }
+```
 
-sort(orderfunction):按指定的参数对数组进行排序(修改原数组)
+**明确类型转换**：
+```javascript
+// ❌ 不推荐
+let num = '123' - 0;
 
-reverse()：将数组反序(修改原数组)
+// ✅ 推荐
+let num = Number('123');
+// 或
+let num = parseInt('123', 10);
+```
 
-forEach()：循环遍历数组每一项（没有返回值）
+---
 
-map()：循环遍历数组的每一项（有返回值）
+## 四、数字精度问题
 
-copyWithin(): 从数组的指定位置拷贝元素到数组的另一个指定位置中（修改原数组）
+### 4.1 精度丢失原因
 
-find(): 返回第一个匹配的值，并停止查找
+**IEEE 754 双精度浮点数**：
+- JavaScript 使用 64 位双精度浮点数表示数字
+- 二进制无法精确表示某些十进制小数
+- 导致运算结果不准确
 
-findIndex(): 返回第一个匹配值的索引，并停止查找
+**示例**：
+```javascript
+0.1 + 0.2;              // 0.30000000000000004
+0.3 - 0.1;              // 0.19999999999999998
+0.1 * 3;                // 0.30000000000000004
+```
 
-toLocaleString()、toString():将数组转换为字符串
+### 4.2 解决方案
 
-flat()、flatMap()：扁平化数组
+#### 方案1：转换为整数运算
+```javascript
+function add(a, b) {
+  const factor = Math.pow(10, Math.max(
+    String(a).split('.')[1]?.length || 0,
+    String(b).split('.')[1]?.length || 0
+  ));
+  return (a * factor + b * factor) / factor;
+}
 
-entries() 、keys() 、values():遍历数组
+add(0.1, 0.2); // 0.3
+```
+
+#### 方案2：使用 toFixed()（注意返回字符串）
+```javascript
+(0.1 + 0.2).toFixed(2);  // '0.30'
+Number((0.1 + 0.2).toFixed(2)); // 0.3
+```
+
+#### 方案3：使用第三方库
+- `decimal.js`
+- `big.js`
+- `number-precision`
+
+#### 方案4：使用 BigInt（仅限整数）
+```javascript
+const a = BigInt(9007199254740991);
+const b = BigInt(1);
+console.log(a + b); // 9007199254740992n
+```
+
+### 4.3 数字范围
+
+```javascript
+// 最大安全整数
+Number.MAX_SAFE_INTEGER;  // 9007199254740991
+
+// 最小安全整数
+Number.MIN_SAFE_INTEGER;  // -9007199254740991
+
+// 最大数值
+Number.MAX_VALUE;         // 1.7976931348623157e+308
+
+// 最小数值
+Number.MIN_VALUE;         // 5e-324
+
+// 判断是否为安全整数
+Number.isSafeInteger(9007199254740991); // true
+Number.isSafeInteger(9007199254740992); // false
+```
+
+---
+
+## 五、原型和原型链
+
+### 5.1 原型规则
+
+**规则 A**：所有引用类型都具有对象特性，可自由扩展属性
+```javascript
+let obj = {};
+obj.name = 'Alice';  // ✅ 可以扩展
+
+let arr = [];
+arr.custom = 'test'; // ✅ 可以扩展
+
+function fn() {}
+fn.custom = 'test';   // ✅ 可以扩展
+```
+
+**规则 B**：所有引用类型都有一个 `__proto__` 属性（隐式原型）
+```javascript
+let obj = {};
+console.log(obj.__proto__); // 指向 Object.prototype
+```
+
+**规则 C**：所有函数都有一个 `prototype` 属性（显式原型）
+```javascript
+function Person() {}
+console.log(Person.prototype); // 指向原型对象
+```
+
+**规则 D**：引用类型的 `__proto__` 指向其构造函数的 `prototype`
+```javascript
+let obj = {};
+obj.__proto__ === Object.prototype; // true
+
+let arr = [];
+arr.__proto__ === Array.prototype;  // true
+
+function fn() {}
+fn.__proto__ === Function.prototype; // true
+```
+
+**规则 E**：属性查找时，先在自身查找，找不到则沿原型链向上查找
+```javascript
+function Person(name) {
+  this.name = name;
+}
+
+Person.prototype.sayHello = function() {
+  console.log('Hello, ' + this.name);
+};
+
+let person = new Person('Alice');
+person.sayHello(); // 'Hello, Alice'
+
+// 查找过程：
+// 1. person.sayHello → 自身没有
+// 2. person.__proto__ (Person.prototype) → 找到 sayHello
+```
+
+### 5.2 原型链图示
+
+```
+person (实例)
+  │
+  ├─ name: 'Alice' (自身属性)
+  │
+  └─ __proto__ → Person.prototype
+       │
+       ├─ sayHello: function (原型属性)
+       │
+       └─ __proto__ → Object.prototype
+            │
+            ├─ toString: function
+            ├─ valueOf: function
+            │
+            └─ __proto__ → null (原型链终点)
+```
+
+### 5.3 instanceof 原理
+
+**手动实现**：
+```javascript
+function myInstanceof(obj, constructor) {
+  let proto = obj.__proto__;
+  const prototype = constructor.prototype;
+  
+  while (proto !== null) {
+    if (proto === prototype) {
+      return true;
+    }
+    proto = proto.__proto__;
+  }
+  
+          return false; 
+}
+
+// 使用
+myInstanceof([], Array);   // true
+myInstanceof([], Object);  // true
+```
+
+---
+
+## 六、继承实现
+
+### 6.1 原型链继承
+
+```javascript
+function Parent() {
+  this.name = 'Parent';
+}
+
+Parent.prototype.sayHello = function() {
+  console.log('Hello from Parent');
+};
+
+function Child() {
+  this.age = 10;
+}
+
+Child.prototype = new Parent(); // 继承
+
+let child = new Child();
+child.sayHello(); // 'Hello from Parent'
+```
+
+**缺点**：
+- 子类实例共享父类引用属性
+- 无法向父类传参
+
+### 6.2 构造函数继承
+
+```javascript
+function Parent(name) {
+  this.name = name;
+}
+
+function Child(name, age) {
+  Parent.call(this, name); // 调用父构造函数
+  this.age = age;
+}
+
+let child = new Child('Alice', 10);
+```
+
+**缺点**：
+- 无法继承父类原型方法
+
+### 6.3 组合继承（推荐）
+
+```javascript
+function Parent(name) {
+  this.name = name;
+}
+
+Parent.prototype.sayHello = function() {
+  console.log('Hello, ' + this.name);
+};
+
+function Child(name, age) {
+  Parent.call(this, name); // 继承属性
+  this.age = age;
+}
+
+Child.prototype = new Parent(); // 继承方法
+Child.prototype.constructor = Child; // 修正构造函数
+
+let child = new Child('Alice', 10);
+child.sayHello(); // 'Hello, Alice'
+```
+
+### 6.4 ES6 Class 继承
+
+```javascript
+class Parent {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  sayHello() {
+    console.log('Hello, ' + this.name);
+  }
+}
+
+class Child extends Parent {
+  constructor(name, age) {
+    super(name); // 调用父类构造函数
+    this.age = age;
+  }
+}
+
+let child = new Child('Alice', 10);
+child.sayHello(); // 'Hello, Alice'
+```
+
+**Class 本质**：语法糖，底层仍基于原型链
+
+---
+
+## 七、数组方法详解
+
+### 7.1 修改原数组的方法
+
+| 方法           | 说明          | 返回值         | 示例                                      |
+| -------------- | ------------- | -------------- | ----------------------------------------- |
+| `push()`       | 末尾添加元素  | 新数组长度     | `[1,2].push(3)` → `3`                     |
+| `pop()`        | 删除末尾元素  | 删除的元素     | `[1,2].pop()` → `2`                       |
+| `shift()`      | 删除首元素    | 删除的元素     | `[1,2].shift()` → `1`                     |
+| `unshift()`    | 首部添加元素  | 新数组长度     | `[1,2].unshift(0)` → `3`                  |
+| `splice()`     | 删除/插入元素 | 删除的元素数组 | `[1,2,3].splice(1,1,4)` → `[2]`           |
+| `reverse()`    | 反转数组      | 原数组         | `[1,2,3].reverse()` → `[3,2,1]`           |
+| `sort()`       | 排序          | 原数组         | `[3,1,2].sort()` → `[1,2,3]`              |
+| `fill()`       | 填充数组      | 原数组         | `new Array(3).fill(0)` → `[0,0,0]`        |
+| `copyWithin()` | 复制元素      | 原数组         | `[1,2,3,4].copyWithin(0,2)` → `[3,4,3,4]` |
+
+### 7.2 不修改原数组的方法
+
+| 方法            | 说明     | 返回值    | 示例                                |
+| --------------- | -------- | --------- | ----------------------------------- |
+| `concat()`      | 合并数组 | 新数组    | `[1,2].concat([3,4])` → `[1,2,3,4]` |
+| `slice()`       | 截取数组 | 新数组    | `[1,2,3].slice(1)` → `[2,3]`        |
+| `join()`        | 转字符串 | 字符串    | `[1,2,3].join('-')` → `'1-2-3'`     |
+| `indexOf()`     | 查找索引 | 索引或 -1 | `[1,2,3].indexOf(2)` → `1`          |
+| `lastIndexOf()` | 最后索引 | 索引或 -1 | `[1,2,2].lastIndexOf(2)` → `2`      |
+| `includes()`    | 是否包含 | 布尔值    | `[1,2,3].includes(2)` → `true`      |
+
+### 7.3 遍历方法
+
+| 方法            | 说明       | 返回值                   | 是否中断 |
+| --------------- | ---------- | ------------------------ | -------- |
+| `forEach()`     | 遍历执行   | `undefined`              | ❌        |
+| `map()`         | 映射新数组 | 新数组                   | ❌        |
+| `filter()`      | 过滤数组   | 新数组                   | ❌        |
+| `find()`        | 查找元素   | 找到的元素或 `undefined` | ✅        |
+| `findIndex()`   | 查找索引   | 索引或 -1                | ✅        |
+| `some()`        | 是否有满足 | 布尔值                   | ✅        |
+| `every()`       | 是否都满足 | 布尔值                   | ✅        |
+| `reduce()`      | 累积计算   | 累积值                   | ❌        |
+| `reduceRight()` | 从右累积   | 累积值                   | ❌        |
+
+### 7.4 ES6+ 新增方法
+
+#### flat() / flatMap()（ES2019）
+
+```javascript
+// flat：扁平化数组
+[1, [2, [3]]].flat();        // [1, 2, [3]]
+[1, [2, [3]]].flat(2);       // [1, 2, 3]
+[1, [2, [3]]].flat(Infinity); // [1, 2, 3]
+
+// flatMap：先 map 后 flat(1)
+[1, 2, 3].flatMap(x => [x, x * 2]); // [1, 2, 2, 4, 3, 6]
+```
+
+#### Array.from() / Array.of()
+
+```javascript
+// Array.from：类数组转数组
+Array.from('hello');           // ['h','e','l','l','o']
+Array.from({length: 3}, (_, i) => i); // [0, 1, 2]
+
+// Array.of：创建数组
+Array.of(1, 2, 3);            // [1, 2, 3]
+Array.of(3);                  // [3]（与 new Array(3) 不同）
+```
+
+#### find() / findIndex()（ES6）
+
+```javascript
+const arr = [1, 2, 3, 4, 5];
+
+arr.find(x => x > 3);         // 4（找到第一个）
+arr.findIndex(x => x > 3);    // 3（找到第一个索引）
+```
+
+#### includes()（ES2016）
+
+```javascript
+[1, 2, 3].includes(2);        // true
+[1, 2, NaN].includes(NaN);    // true（indexOf 无法判断 NaN）
+```
+
+### 7.5 常用数组操作场景
+
+#### 数组去重
+
+```javascript
+// 方法1：Set
+[...new Set([1,2,2,3])];      // [1,2,3]
+
+// 方法2：filter + indexOf
+[1,2,2,3].filter((item, index) => 
+  arr.indexOf(item) === index
+);
+
+// 方法3：reduce
+[1,2,2,3].reduce((acc, cur) => 
+  acc.includes(cur) ? acc : [...acc, cur], []
+);
+```
+
+#### 数组扁平化
+
+```javascript
+// 方法1：flat
+[1, [2, [3]]].flat(Infinity);
+
+// 方法2：递归
+function flatten(arr) {
+  return arr.reduce((acc, cur) => 
+    Array.isArray(cur) ? [...acc, ...flatten(cur)] : [...acc, cur], 
+    []
+  );
+}
+
+// 方法3：toString（仅数字）
+[1, [2, [3]]].toString().split(',').map(Number);
+```
+
+#### 数组分组
+
+```javascript
+function groupBy(arr, key) {
+  return arr.reduce((acc, cur) => {
+    const group = cur[key];
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(cur);
+    return acc;
+  }, {});
+}
+
+groupBy([
+  {type: 'fruit', name: 'apple'},
+  {type: 'fruit', name: 'banana'},
+  {type: 'veg', name: 'carrot'}
+], 'type');
+```
+
+---
+
+## 八、模块化
+
+### 8.1 export 和 export default
+
+#### export（命名导出）
+
+```javascript
+// 方式1：直接导出
+export const name = 'Alice';
+export function sayHello() { }
+
+// 方式2：先定义后导出
+const name = 'Alice';
+function sayHello() { }
+export { name, sayHello };
+
+// 方式3：重命名导出
+export { name as userName, sayHello as greet };
+```
+
+**导入**：
+```javascript
+import { name, sayHello } from './module';
+import { name as userName } from './module';
+import * as module from './module'; // 全部导入
+```
+
+#### export default（默认导出）
+
+```javascript
+// 一个模块只能有一个默认导出
+export default function sayHello() { }
+
+// 或
+function sayHello() { }
+export default sayHello;
+```
+
+**导入**：
+```javascript
+import sayHello from './module';
+import myFunc from './module'; // 可以任意命名
+```
+
+#### 区别对比
+
+| 特性     | export             | export default   |
+| -------- | ------------------ | ---------------- |
+| 数量     | 可以有多个         | 只能有一个       |
+| 导入语法 | `import { name }`  | `import name`    |
+| 重命名   | 需要 `as`          | 可直接重命名     |
+| 导出方式 | 可直接导出或先定义 | 只能先定义后导出 |
+
+---
+
+## 九、核心面试题
+
+### 1. JavaScript 有哪些数据类型？
+- **基本类型**：Undefined、Null、Boolean、String、Number、Symbol、BigInt
+- **引用类型**：Object、Array、Function、Date、RegExp、Map、Set 等
+
+### 2. null 和 undefined 的区别？
+- `null`：表示空值，是对象类型，`typeof null === 'object'`
+- `undefined`：表示未定义，是 undefined 类型，`typeof undefined === 'undefined'`
+- `null == undefined` 为 `true`，但 `null === undefined` 为 `false`
+
+### 3. 如何判断数组类型？
+- `Array.isArray(arr)`（推荐）
+- `Object.prototype.toString.call(arr) === '[object Array]'`
+- `arr instanceof Array`（跨框架可能失效）
+
+### 4. 值类型和引用类型的区别？
+- **值类型**：存储在栈中，按值访问，赋值时复制值
+- **引用类型**：数据在堆中，栈中存储指针，赋值时复制指针
+
+### 5. 什么是原型链？
+- 对象通过 `__proto__` 属性连接形成链式结构
+- 属性查找时沿原型链向上查找，直到找到或到达 `null`
+
+### 6. 如何实现继承？
+- 原型链继承、构造函数继承、组合继承
+- ES6 Class 继承（推荐）
+
+### 7. 数组去重的方法？
+- `[...new Set(arr)]`
+- `filter + indexOf`
+- `reduce`
+
+### 8. 如何避免数字精度问题？
+- 转换为整数运算
+- 使用 `toFixed()` 并转回数字
+- 使用第三方库（decimal.js）
+- 整数使用 BigInt
