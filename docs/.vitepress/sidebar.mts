@@ -17,7 +17,6 @@ export default {
       {text:'1. CSS进阶',link:'/前端基础/CSS/CSS进阶'},
       {text:'2. flex',link:'/前端基础/CSS/flex'},
       {text:'3. grid',link:'/前端基础/CSS/grid'},
-      {text:'4. grid属性',link:'/前端基础/CSS/grid属性'},
 
 
     ]

@@ -871,7 +871,466 @@ CSS 层叠层提供了更精确的样式优先级控制，解决样式冲突问�
 
 ---
 
-## 十、核心面试题
+## 十、CSS Modules（CSS 模块化）
+
+### 10.1 CSS Modules 原理
+
+#### 核心概念
+CSS Modules 是一种 CSS 模块化解决方案，通过**构建时处理**将类名转换为**唯一的哈希值**，实现样式隔离，避免全局污染。
+
+#### 工作原理
+1. **构建时处理**：在构建阶段（Webpack、Vite等），CSS Modules 会：
+   - 解析 CSS 文件中的类名
+   - 生成唯一的哈希类名（如 `.button_abc123`）
+   - 将映射关系导出为 JavaScript 对象
+
+2. **样式隔离**：每个模块的类名都是唯一的，不会与其他模块冲突
+
+3. **局部作用域**：默认所有类名都是局部的，需要使用 `:global()` 声明全局类名
+
+#### 与普通 CSS 的区别
+
+| 特性 | 普通 CSS | CSS Modules |
+|------|---------|-------------|
+| **作用域** | 全局 | 局部（模块化） |
+| **类名冲突** | 容易冲突 | 自动避免冲突 |
+| **类名引用** | 字符串 | JavaScript 对象 |
+| **构建处理** | 无 | 需要构建工具支持 |
+
+### 10.2 基本使用
+
+#### 文件命名
+CSS Modules 文件通常以 `.module.css` 结尾：
+```
+Button.module.css
+Card.module.css
+```
+
+#### CSS 文件编写
+```css
+/* Button.module.css */
+.button {
+  background: #2196F3;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #1976D2;
+}
+
+.primary {
+  background: #4CAF50;
+}
+
+/* 全局类名（不会被转换） */
+:global(.global-class) {
+  color: red;
+}
+```
+
+#### JavaScript/TypeScript 中使用
+
+**React 示例**：
+```jsx
+import React from 'react';
+import styles from './Button.module.css';
+
+function Button({ children, variant }) {
+  return (
+    <button className={`${styles.button} ${styles[variant]}`}>
+      {children}
+    </button>
+  );
+}
+
+// 使用
+<Button variant="primary">点击</Button>
+```
+
+**Vue 示例**：
+```vue
+<template>
+  <button :class="[styles.button, styles[variant]]">
+    <slot></slot>
+  </button>
+</template>
+
+<script setup>
+import styles from './Button.module.css';
+
+defineProps({
+  variant: {
+    type: String,
+    default: 'default'
+  }
+});
+</script>
+```
+
+**原生 JavaScript 示例**：
+```javascript
+import styles from './Button.module.css';
+
+const button = document.createElement('button');
+button.className = styles.button;
+button.textContent = '点击';
+document.body.appendChild(button);
+```
+
+### 10.3 高级用法
+
+#### 组合类名
+```css
+/* Button.module.css */
+.button {
+  padding: 10px 20px;
+}
+
+.primary {
+  background: #2196F3;
+}
+
+.large {
+  padding: 15px 30px;
+  font-size: 18px;
+}
+```
+
+```jsx
+// React
+import styles from './Button.module.css';
+import classNames from 'classnames';  // 或使用 clsx
+
+function Button({ primary, large, children }) {
+  return (
+    <button className={classNames(styles.button, {
+      [styles.primary]: primary,
+      [styles.large]: large
+    })}>
+      {children}
+    </button>
+  );
+}
+```
+
+#### 组合选择器
+```css
+/* Card.module.css */
+.card {
+  border: 1px solid #ddd;
+}
+
+.title {
+  font-size: 18px;
+}
+
+/* 组合选择器 */
+.card .title {
+  color: #333;
+}
+
+/* 或使用组合类名 */
+.cardTitle {
+  composes: title from './Typography.module.css';
+  font-weight: bold;
+}
+```
+
+#### 变量和计算
+```css
+/* variables.module.css */
+:root {
+  --primary-color: #2196F3;
+  --spacing: 8px;
+}
+
+/* Button.module.css */
+.button {
+  background: var(--primary-color);
+  padding: calc(var(--spacing) * 2);
+}
+```
+
+### 10.4 配置说明
+
+#### Webpack 配置
+```javascript
+// webpack.config.js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.module\.css$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: '[name]__[local]--[hash:base64:5]',  // 类名生成规则
+                exportLocalsConvention: 'camelCase',                // 导出格式
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+};
+```
+
+#### Vite 配置
+```javascript
+// vite.config.js
+export default {
+  css: {
+    modules: {
+      localsConvention: 'camelCase',           // 导出格式
+      generateScopedName: '[name]__[local]___[hash:base64:5]'  // 类名生成规则
+    }
+  }
+};
+```
+
+#### 类名生成规则
+- `[name]`：文件名
+- `[local]`：原始类名
+- `[hash]`：哈希值
+- `[hash:base64:5]`：base64 编码的哈希值（5位）
+
+**示例输出**：
+```css
+/* 原始 */
+.button { }
+
+/* 转换后 */
+.Button_button__abc123 { }
+```
+
+### 10.5 实际应用案例
+
+#### 案例1：React 组件样式
+```jsx
+// Button.jsx
+import React from 'react';
+import styles from './Button.module.css';
+
+function Button({ children, type = 'default', onClick }) {
+  const buttonClass = `${styles.button} ${styles[type]}`;
+  
+  return (
+    <button className={buttonClass} onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+export default Button;
+```
+
+```css
+/* Button.module.css */
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.default {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.primary {
+  background: #2196F3;
+  color: white;
+}
+
+.primary:hover {
+  background: #1976D2;
+}
+
+.danger {
+  background: #f44336;
+  color: white;
+}
+
+.danger:hover {
+  background: #d32f2f;
+}
+```
+
+#### 案例2：Vue 组件样式
+```vue
+<!-- Card.vue -->
+<template>
+  <div :class="styles.card">
+    <h3 :class="styles.title">{{ title }}</h3>
+    <p :class="styles.content">{{ content }}</p>
+    <button :class="styles.button" @click="handleClick">查看</button>
+  </div>
+</template>
+
+<script setup>
+import { defineProps, defineEmits } from 'vue';
+import styles from './Card.module.css';
+
+const props = defineProps({
+  title: String,
+  content: String
+});
+
+const emit = defineEmits(['click']);
+
+function handleClick() {
+  emit('click');
+}
+</script>
+```
+
+```css
+/* Card.module.css */
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.content {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.button {
+  background: #2196F3;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+```
+
+#### 案例3：组合多个模块
+```jsx
+// Card.jsx
+import React from 'react';
+import cardStyles from './Card.module.css';
+import buttonStyles from './Button.module.css';
+
+function Card({ title, content }) {
+  return (
+    <div className={cardStyles.card}>
+      <h3 className={cardStyles.title}>{title}</h3>
+      <p className={cardStyles.content}>{content}</p>
+      <button className={buttonStyles.button}>查看详情</button>
+    </div>
+  );
+}
+```
+
+### 10.6 优势与适用场景
+
+#### 优势
+1. **样式隔离**：避免全局样式污染
+2. **类名唯一**：自动生成唯一类名，避免冲突
+3. **类型安全**：TypeScript 支持，提供类型提示
+4. **易于维护**：样式与组件紧密关联
+5. **Tree Shaking**：未使用的样式会被自动移除
+
+#### 适用场景
+- ✅ **组件库开发**：每个组件样式独立
+- ✅ **大型项目**：多人协作，避免样式冲突
+- ✅ **React/Vue 项目**：与现代框架配合良好
+- ✅ **需要类型安全**：TypeScript 项目
+
+#### 不适用场景
+- ❌ **全局样式**：需要全局共享的样式
+- ❌ **第三方样式**：无法控制的样式文件
+- ❌ **简单项目**：小型项目可能过度设计
+
+### 10.7 常见问题
+
+#### 问题1：如何覆盖子组件样式？
+```css
+/* Parent.module.css */
+.parent :global(.child-component) {
+  color: red;
+}
+```
+
+#### 问题2：如何使用全局样式？
+```css
+/* 方式1：使用 :global() */
+:global(.global-class) {
+  color: blue;
+}
+
+/* 方式2：单独创建全局样式文件 */
+/* global.css */
+.global-class {
+  color: blue;
+}
+```
+
+#### 问题3：如何动态应用类名？
+```jsx
+// React
+import styles from './Button.module.css';
+
+function Button({ variant }) {
+  const className = styles[`button-${variant}`] || styles.button;
+  return <button className={className}>点击</button>;
+}
+```
+
+#### 问题4：TypeScript 类型定义
+```typescript
+// Button.module.css.d.ts（自动生成或手动创建）
+declare const styles: {
+  readonly button: string;
+  readonly primary: string;
+  readonly danger: string;
+};
+
+export default styles;
+```
+
+### 10.8 与其他方案对比
+
+| 方案 | 作用域 | 构建时处理 | 类型支持 | 学习成本 |
+|------|--------|-----------|---------|---------|
+| **CSS Modules** | 局部 | 是 | 是 | 低 |
+| **Styled Components** | 局部 | 是 | 是 | 中 |
+| **CSS-in-JS** | 局部 | 是 | 是 | 中 |
+| **Scoped CSS** | 局部 | 是 | 是 | 低 |
+| **普通 CSS** | 全局 | 否 | 否 | 低 |
+
+---
+
+## 十一、核心面试题
 
 ### 1. link 和 @import 的区别？
 - `link`：HTML 标签，同步加载，阻塞渲染
@@ -918,3 +1377,22 @@ CSS 层叠层提供了更精确的样式优先级控制，解决样式冲突问�
 - 使用后及时移除
 - 避免频繁修改
 - 不要过度使用
+
+### 8. CSS Modules 的原理？
+- **构建时处理**：在构建阶段将类名转换为唯一的哈希值
+- **样式隔离**：每个模块的类名都是唯一的，避免全局污染
+- **局部作用域**：默认所有类名都是局部的
+- **映射导出**：将类名映射关系导出为 JavaScript 对象
+
+### 9. CSS Modules 与普通 CSS 的区别？
+- **作用域**：CSS Modules 是局部作用域，普通 CSS 是全局作用域
+- **类名冲突**：CSS Modules 自动避免冲突，普通 CSS 容易冲突
+- **类名引用**：CSS Modules 通过 JavaScript 对象引用，普通 CSS 使用字符串
+- **构建处理**：CSS Modules 需要构建工具支持，普通 CSS 无需处理
+
+### 10. CSS Modules 的优势？
+- **样式隔离**：避免全局样式污染
+- **类名唯一**：自动生成唯一类名
+- **类型安全**：TypeScript 支持
+- **易于维护**：样式与组件紧密关联
+- **Tree Shaking**：未使用的样式会被自动移除
