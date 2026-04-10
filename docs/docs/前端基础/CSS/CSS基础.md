@@ -4,23 +4,23 @@
 
 ### 1.1 基础选择器
 
-| 选择器 | 语法 | 示例 | 说明 |
-|--------|------|------|------|
-| **元素选择器** | `element` | `div { }` | 选择所有该元素 |
-| **类选择器** | `.class` | `.container { }` | 选择class属性 |
-| **ID选择器** | `#id` | `#header { }` | 选择id属性 |
-| **属性选择器** | `[attr]` | `[type] { }` | 选择有该属性的元素 |
-| **通配符** | `*` | `* { }` | 选择所有元素 |
+| 选择器         | 语法      | 示例             | 说明               |
+| -------------- | --------- | ---------------- | ------------------ |
+| **元素选择器** | `element` | `div { }`        | 选择所有该元素     |
+| **类选择器**   | `.class`  | `.container { }` | 选择class属性      |
+| **ID选择器**   | `#id`     | `#header { }`    | 选择id属性         |
+| **属性选择器** | `[attr]`  | `[type] { }`     | 选择有该属性的元素 |
+| **通配符**     | `*`       | `* { }`          | 选择所有元素       |
 
 ### 1.2 组合选择器
 
-| 选择器 | 语法 | 示例 | 说明 |
-|--------|------|------|------|
-| **后代选择器** | `A B` | `div p { }` | 选择div内的所有p |
-| **子选择器** | `A > B` | `div > p { }` | 选择div的直接子元素p |
-| **相邻兄弟** | `A + B` | `h2 + p { }` | 选择紧跟在h2后面的p |
-| **通用兄弟** | `A ~ B` | `h2 ~ p { }` | 选择h2后面的所有p |
-| **并集选择器** | `A, B` | `div, p { }` | 选择div或p |
+| 选择器         | 语法    | 示例          | 说明                 |
+| -------------- | ------- | ------------- | -------------------- |
+| **后代选择器** | `A B`   | `div p { }`   | 选择div内的所有p     |
+| **子选择器**   | `A > B` | `div > p { }` | 选择div的直接子元素p |
+| **相邻兄弟**   | `A + B` | `h2 + p { }`  | 选择紧跟在h2后面的p  |
+| **通用兄弟**   | `A ~ B` | `h2 ~ p { }`  | 选择h2后面的所有p    |
+| **并集选择器** | `A, B`  | `div, p { }`  | 选择div或p           |
 
 ### 1.3 属性选择器
 
@@ -171,11 +171,11 @@ p::first-letter {
 
 ### 2.3 盒模型对比
 
-| 属性 | 标准盒模型 | border-box |
-|------|-----------|------------|
-| `width` | 仅内容宽度 | 内容+padding+border |
-| 总宽度计算 | width + padding + border | width |
-| 应用场景 | 传统布局 | 现代布局（推荐） |
+| 属性       | 标准盒模型               | border-box          |
+| ---------- | ------------------------ | ------------------- |
+| `width`    | 仅内容宽度               | 内容+padding+border |
+| 总宽度计算 | width + padding + border | width               |
+| 应用场景   | 传统布局                 | 现代布局（推荐）    |
 
 ### 2.4 外边距合并（Margin Collapse）
 
@@ -210,13 +210,13 @@ p::first-letter {
 
 ### 3.1 定位属性值
 
-| 值 | 说明 | 特点 | 脱离文档流 |
-|---|------|------|-----------|
-| `static` | 默认值 | 正常文档流 | 否 |
-| `relative` | 相对定位 | 相对于自身原位置 | 否 |
-| `absolute` | 绝对定位 | 相对于最近定位父元素 | 是 |
-| `fixed` | 固定定位 | 相对于视口 | 是 |
-| `sticky` | 粘性定位 | 滚动时"粘住" | 否 |
+| 值         | 说明     | 特点                 | 脱离文档流 |
+| ---------- | -------- | -------------------- | ---------- |
+| `static`   | 默认值   | 正常文档流           | 否         |
+| `relative` | 相对定位 | 相对于自身原位置     | 否         |
+| `absolute` | 绝对定位 | 相对于最近定位父元素 | 是         |
+| `fixed`    | 固定定位 | 相对于视口           | 是         |
+| `sticky`   | 粘性定位 | 滚动时"粘住"         | 否         |
 
 ### 3.2 定位详解
 
@@ -309,14 +309,14 @@ p::first-letter {
 
 ### 4.1 display 属性
 
-| 值 | 说明 | 特点 |
-|---|------|------|
-| `block` | 块级元素 | 独占一行，可设置宽高 |
-| `inline` | 行内元素 | 不独占一行，不可设置宽高 |
-| `inline-block` | 行内块 | 不独占一行，可设置宽高 |
-| `none` | 隐藏 | 不占据空间，不渲染 |
-| `flex` | 弹性布局 | 见 Flexbox 章节 |
-| `grid` | 网格布局 | 见 Grid 章节 |
+| 值             | 说明     | 特点                     |
+| -------------- | -------- | ------------------------ |
+| `block`        | 块级元素 | 独占一行，可设置宽高     |
+| `inline`       | 行内元素 | 不独占一行，不可设置宽高 |
+| `inline-block` | 行内块   | 不独占一行，可设置宽高   |
+| `none`         | 隐藏     | 不占据空间，不渲染       |
+| `flex`         | 弹性布局 | 见 Flexbox 章节          |
+| `grid`         | 网格布局 | 见 Grid 章节             |
 
 ### 4.2 visibility 属性
 
@@ -499,19 +499,112 @@ p::first-letter {
 }
 ```
 
+### 6.4 CSS 变量（自定义属性）
+
+**核心理解**：CSS 变量就是写在 CSS 里的“变量”，语法是 `--变量名`，通过 `var(--变量名)` 使用，**有作用域、有继承、可在运行时用 JS 修改**。
+
+#### 6.4.1 定义与使用
+
+```css
+/* 全局变量：推荐写在 :root，等价于 html */
+:root {
+  --primary-color: #409eff;
+  --danger-color: #f56c6c;
+  --border-radius-base: 4px;
+}
+
+button {
+  color: #fff;
+  background-color: var(--primary-color);     /* 使用变量 */
+  border-radius: var(--border-radius-base);
+}
+
+.danger-btn {
+  background-color: var(--danger-color);
+}
+```
+
+#### 6.4.2 作用域与覆盖
+
+```css
+:root {
+  --theme-color: #409eff;
+}
+
+.card {
+  border: 1px solid var(--theme-color); /* 默认主题色 */
+}
+
+/* 局部覆盖变量：只影响 .dark-theme 下的元素 */
+.dark-theme {
+  --theme-color: #67c23a;   /* 在该作用域内覆盖 :root 的定义 */
+}
+```
+
+**要点**：
+- 写在 `:root` 的变量：全局默认值
+- 写在某个选择器上的变量：只在该元素及其子元素生效（会继承）
+- 就近原则：离元素最近的同名变量优先级更高
+
+#### 6.4.3 Fallback 默认值
+
+  ```css
+.btn {
+  /* 当 --btn-color 未定义时，使用第二个参数作为默认值 */
+  color: var(--btn-color, #333);
+}
+```
+
+#### 6.4.4 JS 动态修改主题（常见业务用法）
+
+```html
+<button id="switch-theme">切换主题色</button>
+```
+
+  ```css
+:root {
+  --primary-color: #409eff;
+}
+
+.btn {
+  color: #fff;
+  background-color: var(--primary-color);
+}
+```
+
+```javascript
+const button = document.getElementById('switch-theme');
+
+button.addEventListener('click', () => {
+  const root = document.documentElement;
+  const current = getComputedStyle(root).getPropertyValue('--primary-color').trim();
+
+  // 简单示例：在两种主题色之间切换
+  if (current === '#409eff') {
+    root.style.setProperty('--primary-color', '#67c23a'); // 绿色
+  } else {
+    root.style.setProperty('--primary-color', '#409eff'); // 蓝色
+  }
+});
+```
+
+**总结**：
+- **语法**：定义 `--name: value;`，使用 `var(--name[, fallback])`
+- **优势**：支持运行时修改、继承、受媒体查询/类名控制，适合做**主题切换、按设计规范统一配色与间距**
+
 ---
 
 ## 七、层叠与优先级
 
 ### 7.1 优先级计算
 
-| 选择器类型 | 示例 | 权重值 |
-|-----------|------|--------|
-| `!important` | `color: red !important;` | ∞ |
-| 内联样式 | `style="color: red;"` | 1000 |
-| ID选择器 | `#header` | 100 |
-| 类/属性/伪类 | `.active`、`[type]`、`:hover` | 10 |
-| 元素/伪元素 | `div`、`::before` | 1 |
+| 选择器类型   | 示例                          | 权重值 |
+| ------------ | ----------------------------- | ------ |
+| `!important` | `color: red !important;`      | ∞      |
+| 内联样式     | `style="color: red;"`         | 1000   |
+| ID选择器     | `#header`                     | 100    |
+| 类/属性/伪类 | `.active`、`[type]`、`:hover` | 10     |
+| 元素/伪元素  | `div`、`::before`             | 1      |
 
 **计算规则**：
 - 权重值相加，值越大优先级越高
@@ -519,7 +612,7 @@ p::first-letter {
 - `!important` 优先级最高
 
 **示例**：
-```css
+  ```css
 /* 权重：100 + 10 = 110 */
 #header .active { color: red; }
 
@@ -532,13 +625,13 @@ div p { color: green; }
 
 ### 7.2 继承控制
 
-```css
-/* 强制继承 */
+  ```css
+  /* 强制继承 */
 .child {
   color: inherit;
 }
-
-/* 阻止继承 */
+  
+  /* 阻止继承 */
 .parent {
   all: unset;        /* 重置所有属性 */
   color: initial;    /* 重置为初始值 */
@@ -557,11 +650,118 @@ div p { color: green; }
 
 ---
 
-## 八、BFC（块级格式化上下文）
+## 八、CSS 命名规范（BEM）
 
-### 8.1 BFC 触发条件
+### 8.1 BEM 基本概念
+
+**BEM** 是一种 CSS 命名规范，全称是 **Block-Element-Modifier**（块-元素-修饰符）。
+
+**核心思想**：
+- **Block（块）**：独立的功能块，可以独立使用，例如 `header`、`card`、`menu`
+- **Element（元素）**：块的组成部分，不能独立使用，用**双下划线**连接，例如 `card__title`、`header__logo`
+- **Modifier（修饰符）**：块或元素的状态/变体，用**双连字符**连接，例如 `card--large`、`button--disabled`
+
+### 8.2 命名规则
+
+#### Block（块）
+```css
+/* 块名：独立的功能组件 */
+.header { }
+.card { }
+.menu { }
+```
+
+#### Element（元素）
+```css
+/* 元素名：块名__元素名 */
+.card__title { }
+.card__content { }
+.card__footer { }
+.header__logo { }
+.header__nav { }
+```
+
+#### Modifier（修饰符）
+```css
+/* 修饰符：块名--修饰符 或 块名__元素名--修饰符 */
+.card--large { }              /* 块的修饰符 */
+.card--highlighted { }
+.button--disabled { }
+.card__title--bold { }         /* 元素的修饰符 */
+.header__logo--small { }
+```
+
+### 8.3 完整示例
+
+```html
+<!-- HTML 结构 -->
+<article class="card card--large">
+  <h2 class="card__title card__title--bold">卡片标题</h2>
+  <div class="card__content">卡片内容</div>
+  <button class="card__button card__button--primary">确认</button>
+</article>
+```
 
 ```css
+/* CSS 样式 */
+.card {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.card--large {
+  padding: 30px;  /* 大尺寸卡片 */
+}
+
+.card__title {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.card__title--bold {
+  font-weight: bold;  /* 标题加粗变体 */
+}
+
+.card__content {
+  color: #666;
+  line-height: 1.6;
+}
+
+.card__button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.card__button--primary {
+  background-color: #007bff;
+  color: white;
+}
+```
+
+### 8.4 BEM 的优势
+
+1. **结构清晰**：从类名就能看出 HTML 结构和层级关系
+2. **避免样式冲突**：每个类名都是唯一的，不会与其他组件冲突
+3. **可维护性强**：修改某个块时，不会影响其他块
+4. **语义明确**：类名自解释，不需要查看 HTML 就能理解结构
+5. **便于协作**：团队成员都能快速理解代码结构
+
+### 8.5 注意事项
+
+- **不要嵌套过深**：避免 `block__element__subelement`，如果元素层级深，考虑拆分成新的块
+- **修饰符不能单独使用**：`card--large` 必须和 `card` 一起使用
+- **保持一致性**：整个项目统一使用 BEM 规范
+
+---
+
+## 九、BFC（块级格式化上下文）
+
+### 9.1 BFC 触发条件
+
+  ```css
 /* 触发 BFC 的方式 */
 .element {
   overflow: hidden;        /* 或 auto、scroll */
@@ -574,7 +774,7 @@ div p { color: green; }
 }
 ```
 
-### 8.2 BFC 作用
+### 9.2 BFC 作用
 
 1. **清除浮动**
 ```html
@@ -583,7 +783,7 @@ div p { color: green; }
 </div>
 ```
 
-```css
+  ```css
 .float-left {
   float: left;
 }
@@ -594,18 +794,18 @@ div p { color: green; }
 ```
 
 2. **防止外边距合并**
-```css
+  ```css
 .parent {
   overflow: hidden;          /* 触发 BFC */
-}
+  }
 
 .child {
   margin-top: 20px;         /* 不会与父元素合并 */
-}
-```
+  }
+  ```
 
 3. **隔离布局**
-```css
+  ```css
 .sidebar {
   display: flow-root;       /* 触发 BFC */
   /* 内部布局不影响外部 */
@@ -614,7 +814,7 @@ div p { color: green; }
 
 ---
 
-## 九、核心面试题
+## 十、核心面试题
 
 ### 1. 盒模型的两种模式？
 - **标准盒模型**：`width` 仅包含内容
@@ -641,7 +841,7 @@ div p { color: green; }
 - 隔离布局
 
 ### 6. 如何实现文本溢出显示省略号？
-```css
+  ```css
 .single-line {
   white-space: nowrap;
   overflow: hidden;

@@ -83,7 +83,18 @@ export default {
       {
       text: 'Vue2',
       link: '/框架和类库/Vue2/Vue2/index'},
+      {
+        text: 'Vue2 响应式原理',
+        link: '/框架和类库/Vue2/Vue2/响应式原理'},
   
+    ]
+  }],
+  '/框架和类库/Vue2与Vue3对比/': [{
+    text: 'Vue2 与 Vue3 对比',
+    items: [
+      { text: '目录', link: '/框架和类库/Vue2与Vue3对比/index' },
+      { text: '响应式对比', link: '/框架和类库/Vue2与Vue3对比/响应式对比' },
+      { text: '综合差异速查', link: '/框架和类库/Vue2与Vue3对比/综合差异速查' },
     ]
   }],
 '/框架和类库/Vue3/':[{
@@ -95,6 +106,9 @@ export default {
       {
       text: '常用组合式API',
       link: '/框架和类库/Vue3/01_Composition API_常用部分'},
+      {
+        text: '响应式系统概述',
+        link: '/框架和类库/Vue3/响应式系统概述'},
       {
         text: 'vue3核心用法',
         link: '/框架和类库/Vue3/vue3核心用法'},

@@ -41,14 +41,14 @@ promise
 
 #### Promise 静态方法
 
-| 方法 | 说明 | 示例 |
-|------|------|------|
-| `Promise.resolve()` | 返回成功状态的 Promise | `Promise.resolve(1)` |
-| `Promise.reject()` | 返回失败状态的 Promise | `Promise.reject('error')` |
-| `Promise.all()` | 所有成功才成功，一个失败就失败 | `Promise.all([p1, p2])` |
-| `Promise.allSettled()` | 等待所有完成，返回所有结果 | `Promise.allSettled([p1, p2])` |
-| `Promise.race()` | 第一个完成就返回 | `Promise.race([p1, p2])` |
-| `Promise.any()` | 第一个成功就返回（ES2021） | `Promise.any([p1, p2])` |
+| 方法                   | 说明                           | 示例                           |
+| ---------------------- | ------------------------------ | ------------------------------ |
+| `Promise.resolve()`    | 返回成功状态的 Promise         | `Promise.resolve(1)`           |
+| `Promise.reject()`     | 返回失败状态的 Promise         | `Promise.reject('error')`      |
+| `Promise.all()`        | 所有成功才成功，一个失败就失败 | `Promise.all([p1, p2])`        |
+| `Promise.allSettled()` | 等待所有完成，返回所有结果     | `Promise.allSettled([p1, p2])` |
+| `Promise.race()`       | 第一个完成就返回               | `Promise.race([p1, p2])`       |
+| `Promise.any()`        | 第一个成功就返回（ES2021）     | `Promise.any([p1, p2])`        |
 
 **Promise.all()**：
 ```javascript
@@ -204,9 +204,9 @@ JavaScript 是单线程的，原因：
 
 **任务分类**：
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| **宏任务** | 由宿主环境提供 | `setTimeout`、`setInterval`、`I/O`、`UI渲染` |
+| 类型       | 说明           | 示例                                                 |
+| ---------- | -------------- | ---------------------------------------------------- |
+| **宏任务** | 由宿主环境提供 | `setTimeout`、`setInterval`、`I/O`、`UI渲染`         |
 | **微任务** | 由 JS 引擎提供 | `Promise.then`、`queueMicrotask`、`MutationObserver` |
 
 ### 2.3 执行顺序
@@ -726,12 +726,12 @@ function outer() {
 
 ### 5.1 绑定规则
 
-| 规则 | 说明 | 示例 |
-|------|------|------|
+| 规则         | 说明                                          | 示例                                         |
+| ------------ | --------------------------------------------- | -------------------------------------------- |
 | **默认绑定** | 非严格模式指向 `window`，严格模式 `undefined` | `function fn() { console.log(this); } fn();` |
-| **隐式绑定** | 对象调用，指向调用对象 | `obj.fn()` → `this` 指向 `obj` |
-| **显式绑定** | `call`/`apply`/`bind` | `fn.call(obj)` → `this` 指向 `obj` |
-| **new 绑定** | 构造函数调用，指向实例 | `new Fn()` → `this` 指向实例 |
+| **隐式绑定** | 对象调用，指向调用对象                        | `obj.fn()` → `this` 指向 `obj`               |
+| **显式绑定** | `call`/`apply`/`bind`                         | `fn.call(obj)` → `this` 指向 `obj`           |
+| **new 绑定** | 构造函数调用，指向实例                        | `new Fn()` → `this` 指向实例                 |
 
 ### 5.2 call / apply / bind
 
@@ -1433,3 +1433,43 @@ num.toString().padStart(5, '0');  // '00042'（数字补零）
 - ES11：可选链、空值合并、BigInt
 - ES12：Promise.any、逻辑赋值
 - ES13：顶层 await、类字段、Array.at
+
+### 8. 如何判断对象的某个方法/属性被“重写”了？
+
+**典型写法**（以方法为例）：
+
+```javascript
+function Parent() {}
+Parent.prototype.method = function () {
+  console.log('parent');
+};
+
+const obj = new Parent();
+obj.method = function () {       // 在实例上“重写”同名方法
+  console.log('child');
+};
+
+// 判断 obj.method 是否相对原型链上的 method 被重写
+const isOverwritten =
+  obj.hasOwnProperty('method') &&                // 1. 是否是自身属性
+  obj.method !== Object.getPrototypeOf(obj).method; // 2. 与原型上的同名方法不相等
+```
+
+**判断思路拆解**：
+
+- `obj.hasOwnProperty('method')`  
+  - 只在对象自己的“属性表”里查找，不沿原型链向上找。  
+  - 如果是 `true`，说明 `method` 是**定义在 obj 本身**上的属性/方法，而不是从原型链继承来的。
+
+- `Object.getPrototypeOf(obj).method`  
+  - 取的是 `obj` 直接原型上的 `method`，也就是“默认的实现”（例如构造函数原型里的方法）。
+  - 如果 `obj.method !== Object.getPrototypeOf(obj).method`：
+    - 说明实例上的 `method` 与原型上的同名方法是两个不同的函数，实现被**覆盖/重写**了。
+
+- 组合起来：
+  - **条件 1**：`hasOwnProperty('method') === true`：有一个“同名的自身属性”，不是单纯继承。
+  - **条件 2**：`obj.method !== 原型上的 method`：自身实现和原型实现不一样。
+  - 两个条件同时满足，就可以认为：**这个方法相对原型上的默认实现，已经在当前对象上被重写了**。
+
+> 面试可以一句话总结：  
+> “先用 `hasOwnProperty` 判断是不是实例自己的属性，再跟原型上的同名属性比较引用是否相等，如果是‘自己有’且‘和原型上的不一样’，就说明被重写了。”

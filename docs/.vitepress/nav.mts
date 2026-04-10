@@ -63,6 +63,10 @@ export default
         link: '/框架和类库/Vue3/index'
       },
       {
+        text: 'Vue2 与 Vue3 对比',
+        link: '/框架和类库/Vue2与Vue3对比/index'
+      },
+      {
         text: 'React',
         link: '/框架和类库/React/React基础-上'
       },
