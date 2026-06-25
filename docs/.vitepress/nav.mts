@@ -78,6 +78,10 @@ export default
         text: '小程序',
         link: '/框架和类库/小程序/index'
       },
+      {
+        text: 'Python',
+        link: '/框架和类库/Python/index'
+      },
     ],
     
     activeMatch: '/框架和类库/'

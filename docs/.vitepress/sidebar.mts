@@ -156,6 +156,18 @@ export default {
         link: '/框架和类库/TypeScript/6_other'},
     ]
   }],
+  '/框架和类库/Python/': [{
+    text: 'Python',
+    items: [
+      { text: '知识地图', link: '/框架和类库/Python/index' },
+      { text: '1. 基础语法', link: '/框架和类库/Python/1_基础语法' },
+      { text: '2. 内置类型与容器', link: '/框架和类库/Python/2_内置类型与容器' },
+      { text: '3. 函数与面向对象', link: '/框架和类库/Python/3_函数与面向对象' },
+      { text: '4. 模块包与虚拟环境', link: '/框架和类库/Python/4_模块包与虚拟环境' },
+      { text: '5. 文件异常与上下文', link: '/框架和类库/Python/5_文件异常与上下文' },
+      { text: '6. 进阶速查', link: '/框架和类库/Python/6_进阶速查' },
+    ]
+  }],
   '/自检列表/浏览器/':[{
     text:'http',
     items: [
